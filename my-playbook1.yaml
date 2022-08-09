@@ -1,0 +1,14 @@
+---
+- name: Configure nginx webserver
+  hosts: webserver
+  tasks:
+    - name: install nginx server
+      apt:
+        name: nginx=1.18*
+        state: present
+      become: yes
+    - name: start nginx
+      service:
+        name: nginx
+        state: started
+      become: yes
