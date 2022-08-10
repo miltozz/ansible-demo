@@ -1,0 +1,40 @@
+---
+- name: Update apt and install node and npm
+  hosts: 35.159.52.86
+  become: yes
+  tasks:
+    - name: Update repositories cache
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+    - name: Install nodejs and npm
+      ansible.builtin.apt:
+        pkg:
+          - nodejs
+          - npm
+
+- name: Deploy nodejs sample app
+  hosts: 35.159.52.86
+  tasks:
+    # copy the file from local source to the server, and then unpack. no remote_src param needed.
+    - name: Copy and unpack on server
+      unarchive:
+        src: /home/mltamd/play/node-app-master/nodejs-app-1.0.0.tgz
+        dest: /home/ubuntu/
+    - name: install node app dependencies
+      npm:
+        path: /home/ubuntu/package
+    - name: start app
+      # prefer command if it serves our goal. it is safer
+      # async blocks the next task and waits x seconds for task to be completed/failed/timeout. 
+      # polls every x seconds. poll 0 equals concurrent execution of async tasks.
+      # async, poll and register are not part of the module, they are modes. 
+      ansible.builtin.command:
+        chdir: /home/ubuntu/package/app
+        cmd: node server
+      async: 1000
+      poll: 0
+    - name: Check app is running
+      shell: ps aux | grep server
+      register: shell_result
+    - debug: msg={{shell_result}}
