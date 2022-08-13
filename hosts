@@ -1,7 +1,7 @@
-[webserver]
-35.159.52.86
+[init]
+3.72.251.179
 
-[webserver:vars]
+[init:vars]
 ansible_ssh_private_key_file=~/.ssh/ec2-key-pair-frankfurt.pem
 ansible_user=ubuntu
 ansible_python_interpreter=/usr/bin/python3
