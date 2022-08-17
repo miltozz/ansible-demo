@@ -1,0 +1,32 @@
+---
+- name: Update repos and install stuff
+  hosts: ansdok
+  become: yes
+  tasks:
+    - name: Update all packages
+      ansible.builtin.yum:
+        name: "*"
+        state: latest
+        update_only: yes
+    - name: Install net-tools, acl, docker, python3
+      # we can choose interpreter at task level.
+      # install python3 by using python2, in case python3 is missing
+      # not needed here, as ec2 instances have python3 by default
+      #
+      # Install ACL to host, to resolve Becoming an Unprivileged User,
+      # when trying to start apps as ec2-user
+      vars:
+        ansible_python_interpreter: /usr/bin/python
+      ansible.builtin.yum:
+        name:
+          - net-tools
+          - acl
+          - docker
+          - python3
+        state: present
+        update_cache: yes
+    - name: Enable Docker service at startup
+      service:
+        name: docker
+        state: started
+        enabled: yes   

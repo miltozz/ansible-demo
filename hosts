@@ -1,7 +1,7 @@
-[nexus]
-3.120.130.131
+[ansdok]
+3.72.78.166
 
-[nexus:vars]
-ansible_ssh_private_key_file=~/.ssh/ec2-key-pair-frankfurt.pem
-ansible_user=ubuntu
+[ansdok:vars]
+ansible_ssh_private_key_file=~/.ssh/ec2-key-for-frankfurt
+ansible_user=ec2-user
 ansible_python_interpreter=/usr/bin/python3
