@@ -1,5 +1,5 @@
 ---
-- name: Update repos and install stuff
+- name: Update repos and install docker and stuff on aws ec2
   hosts: ansdok
   become: yes
   tasks:
@@ -8,25 +8,57 @@
         name: "*"
         state: latest
         update_only: yes
-    - name: Install net-tools, acl, docker, python3
+    - name: Ensure net-tools, acl, docker and docker-compose are installed
       # we can choose interpreter at task level.
       # install python3 by using python2, in case python3 is missing
-      # not needed here, as ec2 instances have python3 by default
+      # not needed here, as ec2 linux2 instances now have python3 by default
       #
       # Install ACL to host, to resolve Becoming an Unprivileged User,
       # when trying to start apps as ec2-user
-      vars:
-        ansible_python_interpreter: /usr/bin/python
+      # vars:
+      #   ansible_python_interpreter: /usr/bin/python
       ansible.builtin.yum:
         name:
           - net-tools
           - acl
           - docker
-          - python3
         state: present
         update_cache: yes
-    - name: Enable Docker service at startup
+    # service module is a proxy for multiple more specific service manager modules
+    # (such as ansible.builtin.systemd and ansible.builtin.sysvinit)
+    - name: Start docker and Enable Docker service at startup
       service:
         name: docker
         state: started
-        enabled: yes   
+        enabled: yes
+    - name: Ensure docker-compose standalone is installed on the server
+      ansible.builtin.get_url:
+        # using Jinja2 builtin plugin lookup to get system architecture with 'uname -m'
+        url: https://github.com/docker/compose/releases/download/v2.7.0/docker-compose-linux-{{lookup('pipe', 'uname -m')}}
+        dest: /usr/local/bin/docker-compose
+        mode: +x
+
+- name: Ensure ec2-user can run docker commands without sudo
+  hosts: ansdok
+  become: yes
+  tasks:
+    # add ec2-user to docker group to run docker commands without sudo
+    # prefer user module instead of shell module
+    # append so we don't remove user from other groups
+    - name: Add ec2-user to docker group
+      user:
+        name: ec2-user
+        groups: docker
+        append: yes
+    # reset connection so ec2-user gets the newly assigned group
+    - name: Reconnect to server
+      meta: reset_connection
+    # Upgrade pip3
+    # - name: Upgrade pip3
+    #   shell: "python3 -m pip install pip --upgrade"
+
+- name: Ensure docker works for ec2-user
+  hosts: ansdok
+  tasks:
+    - name: Test docker by pulling redis image
+      ansible.builtin.command: docker pull redis
