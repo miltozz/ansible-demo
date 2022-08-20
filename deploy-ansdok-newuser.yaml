@@ -1,5 +1,5 @@
 ---
-- name: Update repos and install docker and stuff on aws ec2
+- name: Update repos and install docker and stuff on remote host
   hosts: ansdok
   become: yes
   tasks:
@@ -37,28 +37,67 @@
         url: https://github.com/docker/compose/releases/download/v2.7.0/docker-compose-linux-{{lookup('pipe', 'uname -m')}}
         dest: /usr/local/bin/docker-compose
         mode: +x
+    #install docker python to use ansible.community docker modules
+    - name: Ensure docker python module is installed
+      ansible.builtin.pip:
+        name:
+          - docker
+          - docker-compose
 
-- name: Ensure ec2-user can run docker commands without sudo
+- name: Create new linux user
   hosts: ansdok
   become: yes
   tasks:
     # add ec2-user to docker group to run docker commands without sudo
     # prefer user module instead of shell module
     # append so we don't remove user from other groups
-    - name: Add ec2-user to docker group
+    # ec2 has adm group, ubuntu has admin
+    - name: Create user to run containers
       user:
-        name: ec2-user
-        groups: docker
+        name: mlt
+        groups: adm, docker
         append: yes
-    # reset connection so ec2-user gets the newly assigned group
-    - name: Reconnect to server
-      meta: reset_connection
+    # no need for user logout/login to refresh groups, as we now create the user and groups
+    # # reset connection so ec2-user gets the newly assigned group
+    # - name: Reconnect to server
+    #   meta: reset_connection
+
     # Upgrade pip3
     # - name: Upgrade pip3
     #   shell: "python3 -m pip install pip --upgrade"
 
-- name: Ensure docker works for ec2-user
+- name: Docker pull image and run container with compose
   hosts: ansdok
+  become: True
+  become_user: mlt
+  # vars_prompt:
+  # - name: password
+  #   prompt: What is your password?
+  vars_files: project-vars
   tasks:
-    - name: Test docker by pulling redis image
-      ansible.builtin.command: docker pull redis
+    - name: Login to docker private repo
+      community.docker.docker_login:
+        registry_url: https://index.docker.io/v1/miltosdev/my-private-repo
+        username: miltosdev
+        password: "{{docker_pass}}"
+
+    # Not needed. compose pulls not present images by default
+    - name: Pull image from private repo
+      community.docker.docker_image:
+        name: miltosdev/my-private-repo:jma2-v-1.0.0
+        source: pull
+        # Select platform for pulling. If not specified, will pull whatever docker prefers.
+        pull:
+          platform: amd64
+
+    - name: Copy docker-compose.yml to server
+      ansible.builtin.copy:
+        src: /home/mltamd/learn/ansible/learn-ansible/docker-compose.yml
+        dest: /home/mlt/docker-compose.yml
+        # owner: ec2-user
+        # group: ec2-user
+
+    - name: Start containers with compose
+      community.docker.docker_compose:
+        project_src: /home/mlt/
+        state: present
