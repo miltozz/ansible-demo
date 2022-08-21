@@ -143,7 +143,6 @@ resource "aws_instance" "myapp-server" {
   }
 }
 
-
 # The primary use-case for the null resource is as a do-nothing container for
 # arbitrary actions taken by a provisioner.
 #
@@ -167,6 +166,7 @@ resource "null_resource" "run-playbook-on-server" {
   }
 
 }
+
 output "data-AMI-id-found" {
   value = data.aws_ami.amazon-linux-latest.id
 }
