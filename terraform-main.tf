@@ -57,7 +57,7 @@ resource "aws_security_group" "myapp-sg" {
   }
 
   ingress {
-    description = "Inbound HTTP"
+    description = "Inbound HTTP 8080 ALL"
     from_port   = 8080
     to_port     = 8080
     protocol    = "tcp"
