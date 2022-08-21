@@ -1,6 +1,24 @@
 ---
+- name: Ensure server ready and waiting connections
+  hosts: all
+  gather_facts: False
+  tasks:
+    - name: Wait 180 seconds for port 22 to become open and contain "OpenSSH"
+      ansible.builtin.wait_for:
+        port: 22
+        delay: 10
+        timeout: 180
+        host: "{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}"
+        search_regex: OpenSSH
+      vars:
+        #run this on localhost to each remotehost taken as parameter
+        ansible_connection: local
+        # ACTS ON LOCAL!! so no need....
+        #use default python in case python3 is missing
+        #ansible_python_interpreter: /usr/bin/python
+
 - name: Update repos and install docker and stuff on remote host
-  hosts: ansdok
+  hosts: all
   become: yes
   tasks:
     - name: Update all packages
@@ -45,7 +63,7 @@
           - docker-compose
 
 - name: Create new linux user
-  hosts: ansdok
+  hosts: all
   become: yes
   tasks:
     # add ec2-user to docker group to run docker commands without sudo
@@ -67,7 +85,7 @@
     #   shell: "python3 -m pip install pip --upgrade"
 
 - name: Docker pull image and run container with compose
-  hosts: ansdok
+  hosts: all
   become: True
   become_user: mlt
   # vars_prompt:

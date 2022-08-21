@@ -5,6 +5,12 @@ terraform {
       version = "~> 4.22"
     }
   }
+  backend "s3" {
+    bucket = "bucketfortesting3"
+    key    = "ans/ansdok/tf-state"
+    region = "eu-west-3"
+  }
+
 }
 
 provider "aws" {
@@ -62,6 +68,14 @@ resource "aws_security_group" "myapp-sg" {
     to_port     = 8080
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Inbound HTTP 80 MYIP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = [var.my_ip]
   }
 
   egress {
@@ -129,6 +143,30 @@ resource "aws_instance" "myapp-server" {
   }
 }
 
+
+# The primary use-case for the null resource is as a do-nothing container for
+# arbitrary actions taken by a provisioner.
+#
+# use null_resource to execute arbitrary jobs, within a resource lifecycle
+# ansible-playbook --inventory flag takes a file or a list of ips
+# e.g. (self.public_ip or aws_instance.myapp-server.public_ip)
+#
+# triggers:
+# A map of arbitrary strings that, when changed, will force the null resource to be replaced, 
+# re-running any associated provisioners.
+
+resource "null_resource" "run-playbook-on-server" {
+  # Changes to the instance requires re-provisioning
+  triggers = {
+    trigger_instance_ip_changed = aws_instance.myapp-server.public_ip
+  }
+
+  provisioner "local-exec" {
+    working_dir = "/home/mltamd/learn/ansible/learn-ansible"
+    command     = "ansible-playbook --inventory ${aws_instance.myapp-server.public_ip}, --private-key ${var.ssh_private_key} --user ec2-user deploy-ansdok-newuser.yml"
+  }
+
+}
 output "data-AMI-id-found" {
   value = data.aws_ami.amazon-linux-latest.id
 }
