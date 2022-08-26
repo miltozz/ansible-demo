@@ -10,7 +10,7 @@ pipeline {
                         sh "ls -lah"
                         sh "pwd"
                         sh "whoami"
-                        //sh "scp -o StrictHostKeyChecking=no ansible/* ubuntu@35.180.74.15:/home/ubuntu"
+                        sh "scp  -v -o StrictHostKeyChecking=no ansible/* ubuntu@35.180.74.15:/home/ubuntu"
                     }
                 }
             }
