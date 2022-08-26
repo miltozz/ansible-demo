@@ -1,7 +1,6 @@
 ## Learn Ansible!
 
-1. Provision ec2 server with Terraform
-2. Configure Ansible Inventory file to connect to ec2
-3. Install Docker and docker-compose
-4. Copy local docker-compose file to server
-5. Start docker containers
+1. Jenkins container on EC2 Linux2
+2. Ansible server on EC2 UBUNTU
+3. Jenkins will run a piepeline, to connect to Ansible Server and run a playbook to configure 2 EC2 Linux2 Instances
+

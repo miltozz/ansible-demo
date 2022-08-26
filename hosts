@@ -1,7 +1,0 @@
-[ansdok]
-3.74.156.71
-
-[ansdok:vars]
-ansible_ssh_private_key_file=~/.ssh/ec2-key-for-frankfurt
-ansible_user=ec2-user
-ansible_python_interpreter=/usr/bin/python3
