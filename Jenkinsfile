@@ -10,7 +10,7 @@ pipeline {
                 script {
                     echo "Copy files from Jenkins pipeline repo to ansible-server"
 
-                    sshagent(['ansible-server-key']){
+                    sshagent(['new-ans-server-key']){
                         // ${ANSIBLE_SERVER}:/home/ubuntu without [user]ubuntu will give jenkins@${ANSIBLE_SERVER}:/home/ubuntu                        
                         sh "scp -o StrictHostKeyChecking=no ansible/* ubuntu@${ANSIBLE_SERVER}:/home/ubuntu"
                     
@@ -41,7 +41,7 @@ pipeline {
                     remote.host = ANSIBLE_SERVER
                     remote.allowAnyHosts = true
                     
-                    withCredentials([sshUserPrivateKey(credentialsId: 'ansible-server-key', keyFileVariable: 'keyfile', usernameVariable: 'user')]) {
+                    withCredentials([sshUserPrivateKey(credentialsId: 'new-ans-server-key', keyFileVariable: 'keyfile', usernameVariable: 'user')]) {
                         remote.identityFile = keyfile
                         remote.user = user
                         sshCommand remote: remote, command: "pwd"
