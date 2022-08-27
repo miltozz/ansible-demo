@@ -10,7 +10,7 @@ pipeline {
                 script {
                     echo "Copy files from Jenkins pipeline repo to ansible-server"
 
-                    sshagent(['ansible-server']){
+                    sshagent(['ansible-server-key']){
                         // ${ANSIBLE_SERVER}:/home/ubuntu without [user]ubuntu will give jenkins@${ANSIBLE_SERVER}:/home/ubuntu                        
                         sh "scp  -v -o StrictHostKeyChecking=no ansible/* ubuntu@${ANSIBLE_SERVER}:/home/ubuntu"
                     
@@ -27,5 +27,33 @@ pipeline {
                 }
             }
         }
-    }   
+        stage("execute ansible playbook from the ansible-server") {
+            environment {
+                AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
+                AWS_SECRET_ACCESS_KEY = credentials('jenkins_aws_secret_access_key')
+            }
+            steps {
+                script {
+                    echo "executing ansible-playbook"
+                    
+                    def remote = [:]
+                    remote.name = "ansible-server"
+                    remote.host = ANSIBLE_SERVER
+                    remote.allowAnyHosts = true
+                    
+                    withCredentials([sshUserPrivateKey(credentialsId: 'ansible-server-key', keyFileVariable: 'keyfile', usernameVariable: 'user')]) {
+                        remote.identityFile = keyfile
+                        remote.user = user
+
+                        sshCommand remote: remote, command: "ls -l"
+                        
+                        // set AWS credentials
+                        //sshScript remote: remote, script: "ansible/prepare-server.sh"
+                        
+                        //sshCommand remote: remote, command: "export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-playbook docker-and-compose.yaml"
+                    }
+                }
+            }
+        }   
+    }
 }
