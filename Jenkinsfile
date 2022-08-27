@@ -6,7 +6,7 @@ pipeline {
                 script {
                     echo "Copy files to ansible-server"
                     sshagent (credentials: ['ansible-server']) {
-                    sh "ssh -vvv -o StrictHostKeyChecking=no -T ubuntu@35.180.74.15"
+                    sh "ssh -vvv -o StrictHostKeyChecking=no -T ubuntu@13.37.212.165"
                     }
 
                 }
