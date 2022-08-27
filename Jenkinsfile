@@ -44,9 +44,9 @@ pipeline {
                     withCredentials([sshUserPrivateKey(credentialsId: 'new-ans-server-key', keyFileVariable: 'keyfile', usernameVariable: 'username')]) {
                         remote.identityFile = keyfile
                         remote.user = username
-                        sshCommand remote: remote, command: "pwd; ls -l"
-                        sshScript remote: remote, script: "ansible/prepare-ansible-server.sh"
-                        sshCommand remote: remote, command: "export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph"
+                        sshCommand remote: remote, command: 'pwd; ls -l'
+                        sshScript remote: remote, script: 'ansible/prepare-ansible-server.sh'
+                        sshCommand remote: remote, command: 'export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph'
                     }
                 }
             }
