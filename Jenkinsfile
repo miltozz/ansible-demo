@@ -12,7 +12,7 @@ pipeline {
 
                     sshagent(['ansible-server-key']){
                         // ${ANSIBLE_SERVER}:/home/ubuntu without [user]ubuntu will give jenkins@${ANSIBLE_SERVER}:/home/ubuntu                        
-                        sh "scp  -v -o StrictHostKeyChecking=no ansible/* ubuntu@${ANSIBLE_SERVER}:/home/ubuntu"
+                        sh "scp -o StrictHostKeyChecking=no ansible/* ubuntu@${ANSIBLE_SERVER}:/home/ubuntu"
                     
 
                         echo "copying ssh keys from Jenkins creds store to ansible-server for ec2 instances"
@@ -45,7 +45,7 @@ pipeline {
                         remote.identityFile = keyfile
                         remote.user = user
 
-                        sshCommand remote: remote, command: "ls -l"
+                        sshCommand remote: remote, command: "pwd"
                         
                         // set AWS credentials
                         //sshScript remote: remote, script: "ansible/prepare-server.sh"
