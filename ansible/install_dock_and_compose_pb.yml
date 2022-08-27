@@ -4,30 +4,37 @@
   become: yes
   gather_facts: False
   tasks:
-    - name: Install python3 and docker
-      vars:
-        #in case python3 is not installed
-        ansible_python_interpreter: /usr/bin/python
-      yum:
-        name:
-          - python3
-          - docker
-        update_cache: yes
-        state: present
-    - name: Ensure docker-compose standalone is installed on the server
-      ansible.builtin.get_url:
-        # using Jinja2 builtin plugin lookup to get system architecture with 'uname -m'
-        url: https://github.com/docker/compose/releases/download/v2.7.0/docker-compose-linux-{{lookup('pipe', 'uname -m')}}
-        dest: /usr/local/bin/docker-compose
-        mode: +x
-    - name: Start docker and Enable Docker service at startup
-      service:
-        name: docker
-        state: started
-        enabled: yes
-    #install docker python to use ansible.community docker modules
-    - name: Ensure docker python module is installed
-      ansible.builtin.pip:
-        name: 
-          - docker
-          - docker-compose
+    - name: Add the user 'james' with a bash shell, appending the group 'admins' and 'developers' to the user's groups
+      ansible.builtin.user:
+        name: james_test
+        shell: /bin/bash
+        groups: developers
+        append: yes    
+
+    # - name: Install python3 and docker
+    #   vars:
+    #     #in case python3 is not installed
+    #     ansible_python_interpreter: /usr/bin/python
+    #   yum:
+    #     name:
+    #       - python3
+    #       - docker
+    #     update_cache: yes
+    #     state: present
+    # - name: Ensure docker-compose standalone is installed on the server
+    #   ansible.builtin.get_url:
+    #     # using Jinja2 builtin plugin lookup to get system architecture with 'uname -m'
+    #     url: https://github.com/docker/compose/releases/download/v2.7.0/docker-compose-linux-{{lookup('pipe', 'uname -m')}}
+    #     dest: /usr/local/bin/docker-compose
+    #     mode: +x
+    # - name: Start docker and Enable Docker service at startup
+    #   service:
+    #     name: docker
+    #     state: started
+    #     enabled: yes
+    # #install docker python to use ansible.community docker modules
+    # - name: Ensure docker python module is installed
+    #   ansible.builtin.pip:
+    #     name: 
+    #       - docker
+    #       - docker-compose
