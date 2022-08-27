@@ -10,13 +10,15 @@ pipeline {
                 script {
                     echo "Copy files from Jenkins pipeline repo to ansible-server"
 
+                    //jenkins ssh agent doesn't work with new BEGIN OPENSSH PRIVATE KEY keys. it needs BEGIN RSA PRIVATE KEY.it needs PEM
+                    //generate or convert keys with smth like 'ssh-keygen -m PEM -t rsa -P "" -f afile' 
                     sshagent(['new-ans-server-key']){
                         // ${ANSIBLE_SERVER}:/home/ubuntu without [user]ubuntu will give jenkins@${ANSIBLE_SERVER}:/home/ubuntu                        
                         sh "scp -o StrictHostKeyChecking=no ansible/* ubuntu@${ANSIBLE_SERVER}:/home/ubuntu"
                     
 
                         echo "copying ssh keys from Jenkins creds store to ansible-server for ec2 instances"
-                        // note: single quotes prevent Groovy interpolation
+                        // note: single quotes prevent Groovy interpolation. double quoutes give unsafe warnings
                         //You should use a single quote (') instead of a double quote (") whenever you can. 
                         //https://plugins.jenkins.io/credentials-binding/
                         withCredentials([sshUserPrivateKey(credentialsId: 'ec2-nodes-key', keyFileVariable: 'keyfile', usernameVariable: 'user')]) {
@@ -35,7 +37,12 @@ pipeline {
             steps {
                 script {
                     echo "executing ansible-playbook"
-                    
+                    //jenkins ssh pipeline steps uses old JSch which doesn't support newer SSH versions with keys >= 3072 bits? 
+                    //New SSH versions deprecate? SHA1 and as result we have AUTH_FAIL for RSA keys of SHA1??
+                    //on /var/log/auth.log I found: userauth_pubkey: key type ssh-rsa not in PubkeyAcceptedAlgorithms [preauth]
+                    // temp_fix:  /etc/ssh/sshd_config--> PubkeyAuthentication yes and PubkeyAcceptedKeyTypes=+ssh-rsa
+                    // then sudo service sshd reload
+                    //SECURITY CONCERN?? Using deprecated formats?
                     def remote = [:]
                     remote.name = "ansible-server"
                     remote.host = '13.37.212.165'
@@ -46,7 +53,7 @@ pipeline {
                         remote.user = username
                         sshCommand remote: remote, command: 'pwd; ls -l'
                         sshScript remote: remote, script: 'ansible/prepare-ansible-server.sh'
-                        //sshd_config:PermitUserEnvironment
+                        //ansible-playbook command not found. sshd_config:PermitUserEnvironment: UNSAFE. Or export the path of ansible,as below 
                         //sshCommand remote: remote, command: 'export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph'
                         sshCommand remote: remote, command: 'export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-playbook install_dock_and_compose_pb.yml'
 
@@ -57,4 +64,3 @@ pipeline {
         }   
     }
 }
-//; ansible-playbook install_dock_and_compose_pb.yml
