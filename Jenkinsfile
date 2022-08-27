@@ -38,13 +38,14 @@ pipeline {
                     
                     def remote = [:]
                     remote.name = "ansible-server"
-                    remote.host = ANSIBLE_SERVER
+                    remote.host = 13.37.212.165
                     remote.allowAnyHosts = true
                     
-                    withCredentials([sshUserPrivateKey(credentialsId: 'new-ans-server-key', keyFileVariable: 'keyfile', usernameVariable: 'user')]) {
+                    withCredentials([sshUserPrivateKey(credentialsId: 'new-ans-server-key', keyFileVariable: 'keyfile', usernameVariable: 'username')]) {
                         remote.identityFile = keyfile
-                        remote.user = user
-                        sshCommand remote: remote, command: "pwd"
+                        remote.user = username
+                        //sshCommand remote: remote, command: "pwd"
+                        sshScript remote: remote, script: "test_script.sh"
                     }
                 }
             }
