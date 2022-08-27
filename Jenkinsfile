@@ -44,13 +44,7 @@ pipeline {
                     withCredentials([sshUserPrivateKey(credentialsId: 'ansible-server-key', keyFileVariable: 'keyfile', usernameVariable: 'user')]) {
                         remote.identityFile = keyfile
                         remote.user = user
-
                         sshCommand remote: remote, command: "pwd"
-                        
-                        // set AWS credentials
-                        //sshScript remote: remote, script: "ansible/prepare-server.sh"
-                        
-                        //sshCommand remote: remote, command: "export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-playbook docker-and-compose.yaml"
                     }
                 }
             }
