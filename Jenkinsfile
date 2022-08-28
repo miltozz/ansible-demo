@@ -5,12 +5,12 @@ pipeline {
     }
  
     stages {
-        stage("init") {
+        stage("Copy files from Jenkins pipeline repo to ansible-server") {
             steps {
                 script {
-                    echo "Copy files from Jenkins pipeline repo to ansible-server"
+                    echo "Copy files to ansible-server"
 
-                    //jenkins ssh agent doesn't work with new BEGIN OPENSSH PRIVATE KEY keys. it needs BEGIN RSA PRIVATE KEY.it needs PEM
+                    //Jenkins ssh agent doesn't work with new BEGIN OPENSSH PRIVATE KEY keys. it needs BEGIN RSA PRIVATE KEY.it needs PEM
                     //generate or convert keys with smth like 'ssh-keygen -m PEM -t rsa -P "" -f afile' 
                     sshagent(['new-ans-server-key']){
                         // ${ANSIBLE_SERVER}:/home/ubuntu without [user]ubuntu will give jenkins@${ANSIBLE_SERVER}:/home/ubuntu                        
@@ -44,8 +44,8 @@ pipeline {
                     // then sudo service sshd reload
                     //SECURITY CONCERN?? Using deprecated formats?
                     def remote = [:]
-                    remote.name = "ansible-server"
-                    remote.host = '13.37.212.165'
+                    remote.name = "ansible-server-ec2"
+                    remote.host = ANSIBLE_SERVER
                     remote.allowAnyHosts = true
                     
                     withCredentials([sshUserPrivateKey(credentialsId: 'new-ans-server-key', keyFileVariable: 'keyfile', usernameVariable: 'username')]) {
