@@ -45,7 +45,9 @@ pipeline {
                     echo "executing ansible-playbook"
                     echo 'env.AWS_ACCESS_KEY_ID'
                     echo 'AWS_ACCESS_KEY_ID'
-                    echo '${AWS_ACCESS_KEY_ID}'
+                    echo AWS_ACCESS_KEY_ID
+                    echo env.AWS_ACCESS_KEY_ID
+                    echo ${AWS_ACCESS_KEY_ID}
 
                     //jenkins ssh pipeline steps uses old JSch which doesn't support newer SSH versions with keys >= 3072 bits? 
                     //New SSH versions deprecate? SHA1 and as result we have AUTH_FAIL for RSA keys of SHA1??
