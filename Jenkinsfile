@@ -26,7 +26,7 @@ pipeline {
                         //You should use a single quote (') instead of a double quote (") whenever you can. 
                         //https://plugins.jenkins.io/credentials-binding/
                         withCredentials([sshUserPrivateKey(credentialsId: 'ec2-nodes-key', keyFileVariable: 'keyfile', usernameVariable: 'user')]) {
-                            sh 'chmod 600 ssh-key.pem' //if key exists. it has permission 400 and pieline fails
+                            //if key exists. it has permission 400 and pieline fails
                             sh 'scp $keyfile ubuntu@$ANSIBLE_SERVER:/home/ubuntu/ssh-key.pem'
                         }
                     }
