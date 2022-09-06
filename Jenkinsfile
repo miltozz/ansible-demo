@@ -61,7 +61,7 @@ pipeline {
                         remote.retryWaitSec = 30
                         sshCommand remote: remote, command: 'pwd; ls -l; echo $PATH'
                         sshScript remote: remote, script: 'ansible/prepare-ansible-server-ec2-ubu-1.sh'
-                        sshScript remote: remote, script: 'ansible/prepare-ansible-server-reboot.sh'
+                        //sshScript remote: remote, script: 'ansible/prepare-ansible-server-reboot.sh'
                         sshCommand remote: remote, command: 'pwd; ls -l; pwd; echo $PATH'
                         //ansible-playbook command not found. sshd_config:PermitUserEnvironment: UNSAFE. Or export the path of ansible,as below 
                         
