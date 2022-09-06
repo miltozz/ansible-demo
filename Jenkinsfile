@@ -34,6 +34,7 @@ pipeline {
                 }
             }
         }
+        // PROBLEM: aws credentials are read from Ansible-server's ~/.aws/credentials file. below env and exports do not work 
         stage("execute ansible playbook from the ansible-server") {
             environment {
                 AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
@@ -42,6 +43,10 @@ pipeline {
             steps {
                 script {
                     echo "executing ansible-playbook"
+                    echo 'env.AWS_ACCESS_KEY_ID'
+                    echo 'AWS_ACCESS_KEY_ID'
+                    echo '${AWS_ACCESS_KEY_ID}'
+
                     //jenkins ssh pipeline steps uses old JSch which doesn't support newer SSH versions with keys >= 3072 bits? 
                     //New SSH versions deprecate? SHA1 and as result we have AUTH_FAIL for RSA keys of SHA1??
                     //on /var/log/auth.log I found: userauth_pubkey: key type ssh-rsa not in PubkeyAcceptedAlgorithms [preauth]
