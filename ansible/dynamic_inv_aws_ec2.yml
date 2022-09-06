@@ -4,7 +4,7 @@ regions:
 filters:
   # All instances with their `Environment` tag set to `dev`
   # All instances with their `Name` tag set to `node` or we could 'nod*'
-  tag:Name: node
+  tag:Name: nod*
 keyed_groups:
   - key: tags
     prefix: tag
