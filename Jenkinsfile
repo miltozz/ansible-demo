@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         // ANSIBLE_SERVER = "35.180.139.3"
-        ANSIBLE_SERVER = "13.39.49.189"
+        ANSIBLE_SERVER = "35.180.100.78"
 
         
     }
@@ -43,8 +43,6 @@ pipeline {
             steps {
                 script {
                     echo "executing ansible-playbook"
-                    echo AWS_ACCESS_KEY_ID
-                    echo env.AWS_ACCESS_KEY_ID
 
                     //jenkins ssh pipeline steps uses old JSch which doesn't support newer SSH versions with keys >= 3072 bits? 
                     //New SSH versions deprecate? SHA1 and as result we have AUTH_FAIL for RSA keys of SHA1??
@@ -69,9 +67,9 @@ pipeline {
                         sshCommand remote: remote, command: 'pwd; ls -l; pwd; echo $PATH'
                         //sshCommand remote: remote, command: 'mkdir /home/ubuntu/.daws; touch /home/ubuntu/.daws/credentials; '
                         //ansible-playbook command not found. sshd_config:PermitUserEnvironment: UNSAFE. Or export the path of ansible,as below 
-                        
-                        sshCommand remote: remote, command: 'export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph'
-
+                        sshCommand remote: remote, command: 'export DEBUG_VAR1="debug var 1 value"'
+                        sshCommand remote: remote, command: 'export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph; echo $DEBUG_VAR1; echo AWS_ACCESS_KEY_ID'
+                        sshCommand remote: remote, command: 'printenv'                        
                         //ALSO!!  ~/.profile adds $HOME/.local/bin to PATH. It is available after logout/login or reboot.
                         // sshCommand remote: remote, command: 'export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-playbook install_dock_and_compose_pb.yml'
                     }
