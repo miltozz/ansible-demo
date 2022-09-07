@@ -67,7 +67,7 @@ pipeline {
                         sshCommand remote: remote, command: 'pwd; ls -l; pwd; echo $PATH'
 
                         //ansible-playbook command not found. sshd_config:PermitUserEnvironment: UNSAFE. Or export the path of ansible,as below 
-                        sshCommand remote: remote, command: 'sudo export DEBUG_VAR1="debug var 1 value"'
+                        sshScript remote: remote, script: 'ansible/test_script.sh'
                         sshCommand remote: remote, command: 'export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph; echo $DEBUG_VAR1; echo AWS_ACCESS_KEY_ID'
                         sshCommand remote: remote, command: 'printenv'                        
                         //ALSO!!  ~/.profile adds $HOME/.local/bin to PATH. It is available after logout/login or reboot.
