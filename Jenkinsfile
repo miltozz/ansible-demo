@@ -68,8 +68,8 @@ pipeline {
                         sshCommand remote: remote, command: 'pwd; ls -l; pwd; echo $PATH'
 
                         //ansible-playbook command not found. sshd_config:PermitUserEnvironment: UNSAFE. Or export the path of ansible,as below 
-                        sshCommand remote: remote, command: "export A1=alpha1; export TEST_ENV=${TEST1}; export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph; echo $A1; echo $AWS_ACCESS_KEY_ID; echo $TEST_ENV; printenv"
-                        sshCommand remote: remote, command: 'source /home/ubuntu/.bashrc'                       
+                        sshCommand remote: remote, command: "export A1=alpha1; export TEST_ENV=${TEST1}; export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph; echo $AWS_ACCESS_KEY_ID; echo $TEST_ENV; echo $A1; printenv"
+                        // sshCommand remote: remote, command: 'source /home/ubuntu/.bashrc'                       
                         //ALSO!!  ~/.profile adds $HOME/.local/bin to PATH. It is available after logout/login or reboot.
                         // sshCommand remote: remote, command: 'export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-playbook install_dock_and_compose_pb.yml'
                     }
