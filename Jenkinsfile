@@ -34,11 +34,12 @@ pipeline {
                 }
             }
         }
-        // PROBLEM: aws credentials are read from Ansible-server's ~/.aws/credentials file. below env and exports do not work 
+        // PROBLEM: aws credentials are read from Ansible-server's ~/.aws/credentials file. below env and exports do not work. 
+        // Possibly due to sinlge and double quotes and interpolation confusion
         stage("execute ansible playbook from the ansible-server") {
             environment {
-                AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
-                AWS_SECRET_ACCESS_KEY = credentials('jenkins_aws_secret_access_key')
+                // AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
+                // AWS_SECRET_ACCESS_KEY = credentials('jenkins_aws_secret_access_key')
                 
             }
             steps {
@@ -64,13 +65,14 @@ pipeline {
                         remote.retryWaitSec = 30
                         sshCommand remote: remote, command: 'pwd; ls -l; echo $PATH'
                         sshScript remote: remote, script: 'ansible/prepare-ansible-server-ec2-ubu-1.sh'
+                                            
 
                         
 
                         //ansible-playbook command not found. sshd_config:PermitUserEnvironment: UNSAFE. Or export the path of ansible,as below 
 
-                        sshCommand remote: remote, command:'export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}'
-                        sshCommand remote: remote, command:'export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}'
+                        // sshCommand remote: remote, command:'export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}'
+                        // sshCommand remote: remote, command:'export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}'
                         sshCommand remote: remote, command:'export PATH=$PATH:/home/ubuntu/.local/bin; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph'
                       
                         //ALSO!!  ~/.profile adds $HOME/.local/bin to PATH. It is available after logout/login or reboot.
