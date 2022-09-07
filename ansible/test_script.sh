@@ -1,1 +1,0 @@
-export DEBUG_VAR1="debug_var_1_value"
