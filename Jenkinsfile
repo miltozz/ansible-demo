@@ -70,7 +70,7 @@ pipeline {
                         //ansible-playbook command not found. sshd_config:PermitUserEnvironment: UNSAFE. Or export the path of ansible,as below 
                         sshCommand remote: remote, command: 'export PATH=$PATH:/home/ubuntu/.local/bin'
 
-                        sshCommand remote: remote, command: 'export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}'
+                        sshCommand remote: remote, command: 'export AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}"'
                         sshCommand remote: remote, command:'printenv'
                         // sshCommand remote: remote, command: 'export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph'
                       
