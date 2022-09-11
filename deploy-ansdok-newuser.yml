@@ -65,16 +65,18 @@
 - name: Create new linux user
   hosts: all
   become: yes
-  tasks:
+  roles:
+    - create_user
+  # tasks:
     # add ec2-user to docker group to run docker commands without sudo
     # prefer user module instead of shell module
     # append so we don't remove user from other groups
     # ec2 has adm group, ubuntu has admin
-    - name: Create user to run containers
-      user:
-        name: mlt
-        groups: adm, docker
-        append: yes
+    # - name: Create user to run containers
+    #   user:
+    #     name: mlt
+    #     groups: adm, docker
+    #     append: yes
     # no need for user logout/login to refresh groups, as we now create the user and groups
     # # reset connection so ec2-user gets the newly assigned group
     # - name: Reconnect to server
@@ -92,30 +94,33 @@
   # - name: password
   #   prompt: What is your password?
   vars_files: project-vars
-  tasks:
-    - name: Login to docker private repo
-      community.docker.docker_login:
-        registry_url: https://index.docker.io/v1/miltosdev/my-private-repo
-        username: miltosdev
-        password: "{{docker_pass}}"
+  roles:
+    - start_containers
+    
+  # tasks:
+  #   - name: Login to docker private repo
+  #     community.docker.docker_login:
+  #       registry_url: https://index.docker.io/v1/miltosdev/my-private-repo
+  #       username: miltosdev
+  #       password: "{{docker_pass}}"
 
-    # Not needed. compose pulls not present images by default
-    - name: Pull image from private repo
-      community.docker.docker_image:
-        name: miltosdev/my-private-repo:jma2-v-1.0.0
-        source: pull
-        # Select platform for pulling. If not specified, will pull whatever docker prefers.
-        pull:
-          platform: amd64
+    # # Not needed. compose pulls not present images by default
+    # - name: Pull image from private repo
+    #   community.docker.docker_image:
+    #     name: miltosdev/my-private-repo:jma2-v-1.0.0
+    #     source: pull
+    #     # Select platform for pulling. If not specified, will pull whatever docker prefers.
+    #     pull:
+    #       platform: amd64
 
-    - name: Copy docker-compose.yml to server
-      ansible.builtin.copy:
-        src: /home/mltamd/learn/ansible/learn-ansible/docker-compose.yml
-        dest: /home/mlt/docker-compose.yml
-        # owner: ec2-user
-        # group: ec2-user
+    # - name: Copy docker-compose.yml to server
+    #   ansible.builtin.copy:
+    #     src: /home/mltamd/learn/ansible/learn-ansible/docker-compose.yml
+    #     dest: /home/mlt/docker-compose.yml
+    #     # owner: ec2-user
+    #     # group: ec2-user
 
-    - name: Start containers with compose
-      community.docker.docker_compose:
-        project_src: /home/mlt/
-        state: present
+    # - name: Start containers with compose
+    #   community.docker.docker_compose:
+    #     project_src: /home/mlt/
+    #     state: present

@@ -1,0 +1,8 @@
+---
+
+- name: Create user to run containers
+  user:
+    name: mlt
+    groups: adm, docker
+    append: yes
+    
