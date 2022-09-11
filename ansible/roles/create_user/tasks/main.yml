@@ -3,6 +3,6 @@
 - name: Create user to run containers
   user:
     name: mlt
-    groups: adm, docker
+    groups: "{{user_groups}}"
     append: yes
     

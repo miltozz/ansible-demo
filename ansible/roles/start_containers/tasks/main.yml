@@ -2,8 +2,8 @@
 
 - name: Login to docker private repo
   community.docker.docker_login:
-    registry_url: https://index.docker.io/v1/miltosdev/my-private-repo
-    username: miltosdev
+    registry_url: "{{docker_registry}}"
+    username: "{{docker_username}}"
     password: "{{docker_pass}}"
     
 - name: Copy docker-compose.yml to server
