@@ -7,11 +7,12 @@
       ansible.builtin.apt:
         update_cache: yes
         cache_valid_time: 3600
-    - name: Install nodejs and npm
+    - name: Install nodejs and npm and acl
       ansible.builtin.apt:
         pkg:
           - nodejs
           - npm
+          - acl
 
 - name: Create new linux user
   hosts: deploy_server
