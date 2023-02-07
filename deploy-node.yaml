@@ -1,6 +1,6 @@
 ---
 - name: Update apt and install node and npm
-  hosts: init
+  hosts: deploy_server
   become: yes
   tasks:
     - name: Update repositories cache
@@ -14,7 +14,7 @@
           - npm
 
 - name: Create new linux user
-  hosts: init
+  hosts: deploy_server
   become: yes
   vars_files:
     - project-vars
@@ -23,14 +23,14 @@
       user:
         name: "{{user_name}}"
         comment: "{{user_name}} admin"
-        group: admin
+        group: adm
         shell: /bin/bash
       register: user_creation_result
     - debug: msg={{user_creation_result}}
     - debug: msg={{user_creation_result.uid}}
 
 - name: Deploy nodejs sample app
-  hosts: init
+  hosts: deploy_server
   become: True
   become_user: "{{user_name}}"
   vars_files:
@@ -39,7 +39,7 @@
     # copy the file from local source to the server, and then unpack. no remote_src param needed.
     - name: Copy and unpack on server
       unarchive:
-        src: "{{node_artifact_location}}/nodejs-app-{{app_version}}.tgz"
+        src: "{{node_artifact_location}}/sample-node-app-{{app_version}}.tgz"
         dest: "{{user_home_location}}"
     - name: install node app dependencies
       npm:

@@ -1,5 +1,5 @@
-node_artifact_location: /home/mltamd/play/node-app-master
+node_artifact_location: /home/ubuntu/node-app/app
 app_version: 1.0.0
-user_name: dauser
+user_name: nodeuser
 user_home_location: /home/{{user_name}}
 
