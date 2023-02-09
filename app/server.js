@@ -9,14 +9,14 @@ app.get('/', function (req, res) {
 });
 
 app.get('/profile1', function (req, res) {
-  let img = fs.readFileSync(path.join(__dirname, "images/profile1.jpg"));
-  res.writeHead(200, {'Content-Type': 'image/jpg' });
+  let img = fs.readFileSync(path.join(__dirname, "images/profile1.png"));
+  res.writeHead(200, {'Content-Type': 'image/png' });
   res.end(img, 'binary');
 });
 
 app.get('/profile2', function (req, res) {
-  let img = fs.readFileSync(path.join(__dirname, "images/profile2.jpg"));
-  res.writeHead(200, {'Content-Type': 'image/jpg' });
+  let img = fs.readFileSync(path.join(__dirname, "images/profile2.png"));
+  res.writeHead(200, {'Content-Type': 'image/png' });
   res.end(img, 'binary');
 });
 
