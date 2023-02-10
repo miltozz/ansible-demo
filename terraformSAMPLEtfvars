@@ -2,3 +2,5 @@ aws_region = "eu-west-3"
 avail_zone = "eu-west-3a"
 depl_env_prefix = "test"
 my_ip = "87.202.12.34/32"
+public_key_location = "C:\\Users\\MLT\\.ssh\\testkey.pub"
+

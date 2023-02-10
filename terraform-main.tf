@@ -102,7 +102,7 @@ resource "aws_security_group" "myapp-sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = [var.my_ip, "35.181.59.25/32"]
   }
 
   ingress {

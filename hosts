@@ -1,7 +1,8 @@
 [ansdok]
-3.74.156.71
+15.237.52.178
 
 [ansdok:vars]
-ansible_ssh_private_key_file=~/.ssh/ec2-key-for-frankfurt
+ansible_ssh_private_key_file=~/.ssh/testkey-for-ansdok
+MLT_LNV_ansible_ssh_private_key_file=C:\\Users\\MLT\\.ssh\\id_ed25519.pub
 ansible_user=ec2-user
 ansible_python_interpreter=/usr/bin/python3
