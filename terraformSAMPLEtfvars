@@ -1,0 +1,4 @@
+aws_region = "eu-west-3"
+avail_zone = "eu-west-3a"
+depl_env_prefix = "test"
+my_ip = "87.202.12.34/32"

@@ -1,4 +1,8 @@
-## Learn Ansible!
+# Learn Ansible!
+
+## Ansible Docker EC2 Project
+
+[Repo]
 
 1. Provision ec2 server with Terraform
 2. Configure Ansible Inventory file to connect to ec2
