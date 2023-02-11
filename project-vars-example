@@ -1,0 +1,3 @@
+app_version: 1.0.0
+test_var: test123
+docker_pass: your_registry_password
