@@ -16,3 +16,20 @@
           - docker
         state: present
         update_cache: yes
+    - name: Start docker and Enable Docker service at startup
+      service:
+        name: docker
+        state: started
+        enabled: yes
+    - name: Ensure docker-compose standalone is installed on the server
+      ansible.builtin.get_url:
+        # using Jinja2 builtin plugin lookup to get system architecture with 'uname -m'
+        url: https://github.com/docker/compose/releases/download/v2.16.0/docker-compose-linux-{{lookup('pipe', 'uname -m')}}
+        dest: /usr/libexec/docker/cli-plugins/docker-compose
+        mode: +x
+    #install docker python to use ansible.community docker modules
+    - name: Ensure docker python module is installed
+      ansible.builtin.pip:
+        name: 
+          - docker
+          - docker-compose        
