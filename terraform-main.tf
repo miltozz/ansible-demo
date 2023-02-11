@@ -55,19 +55,19 @@ resource "aws_internet_gateway" "myapp-igw" {
 # Option 1: Create new aws_route_table, and then aws_route_table_association 
 
 resource "aws_route_table" "myapp-route-table" {
-   vpc_id = aws_vpc.myapp-vpc.id
+  vpc_id = aws_vpc.myapp-vpc.id
 
-   route {
-     cidr_block = "0.0.0.0/0"
-     gateway_id = aws_internet_gateway.myapp-igw.id
-   }
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.myapp-igw.id
+  }
 
-   # default route, mapping VPC CIDR block to "local", created implicitly and
-   # doesn't need/cannot be specified.
+  # default route, mapping VPC CIDR block to "local", created implicitly and
+  # doesn't need/cannot be specified.
 
-   tags = {
-     Name = "${var.depl_env_prefix}-tf-myapp-route-table"
-   }
+  tags = {
+    Name = "${var.depl_env_prefix}-tf-myapp-route-table"
+  }
 }
 
 # Associate subnet with Route Table
@@ -97,12 +97,12 @@ resource "aws_security_group" "myapp-sg" {
   name        = "${var.depl_env_prefix}-tf-myapp-sg"
   description = "myapp security group"
   vpc_id      = aws_vpc.myapp-vpc.id
-  
+
   ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip, "35.181.59.25/32"]
+    cidr_blocks = [var.my_ip, var.ec2_ansible_server_ip]
   }
 
   ingress {
@@ -169,9 +169,9 @@ resource "aws_key_pair" "myapp-ssh-key" {
 }
 
 resource "aws_instance" "myapp-server" {
-  ami                         = data.aws_ami.amazon-linux-latest.id
-  instance_type               = var.instance_type
-  subnet_id                   = aws_subnet.myapp-subnet-1.id
+  ami           = data.aws_ami.amazon-linux-latest.id
+  instance_type = var.instance_type
+  subnet_id     = aws_subnet.myapp-subnet-1.id
   //vpc_security_group_ids      = [aws_default_security_group.myapp-default-sg.id]
   vpc_security_group_ids      = [aws_security_group.myapp-sg.id]
   availability_zone           = var.avail_zone
