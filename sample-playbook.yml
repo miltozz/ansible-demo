@@ -32,4 +32,19 @@
       ansible.builtin.pip:
         name: 
           - docker
-          - docker-compose        
+          - docker-compose
+- name: Ensure ec2-user can run docker commands without sudo
+  hosts: ansdok
+  become: yes
+  tasks:
+    # add ec2-user to docker group to run docker commands without sudo
+    # prefer user module instead of shell module
+    # append so we don't remove user from other groups
+    - name: Add ec2-user to docker group
+      user:
+        name: ec2-user
+        groups: docker
+        append: yes
+    # reset connection so ec2-user gets the newly assigned group
+    - name: Reconnect to server
+      meta: reset_connection           
