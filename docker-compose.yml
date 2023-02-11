@@ -5,7 +5,7 @@ services:
         #image: ${aws_ecr}/my-app:1.3
         image: miltosdev/my-private-repo:jma-v1.0.1
         ports:
-            - 3000:3000
+            - 8080:8080
         container_name: jma2v101app
     mongodb:
         image: mongo
