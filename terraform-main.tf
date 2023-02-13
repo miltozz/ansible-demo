@@ -2,24 +2,22 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 4.22"
+      version = "~> 4.51.0"
     }
   }
-  backend "s3" {
-    bucket = "bucketfortesting3"
-    key    = "ans/ansdok/tf-state"
-    region = "eu-west-3"
-  }
-
+  # backend "s3" {
+  #   bucket = "bucketfortesting3"
+  #   key    = "ans/ansdok2/tf-state"
+  #   region = "eu-west-3"
+  # }
 }
 
 provider "aws" {
-  region = "eu-central-1"
+  region = var.aws_region
 }
 
 data "aws_ami" "amazon-linux-latest" {
   most_recent = true
-  owners      = ["137112412989"] # Amazon
 
   filter {
     name   = "name"
@@ -31,6 +29,7 @@ data "aws_ami" "amazon-linux-latest" {
     values = ["hvm"]
   }
 
+  owners = ["137112412989"] # Amazon
 }
 
 resource "aws_vpc" "myapp-vpc" {
@@ -50,58 +49,17 @@ resource "aws_subnet" "myapp-subnet-1" {
   }
 }
 
-resource "aws_security_group" "myapp-sg" {
-  name   = "myapp-sg"
-  vpc_id = aws_vpc.myapp-vpc.id
-
-  ingress {
-    description = "Inbound SSH"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
-  }
-
-  ingress {
-    description = "Inbound HTTP 8080 ALL"
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "Inbound HTTP 80 MYIP"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
-  }
-
-  egress {
-    description     = "Outbound ALL"
-    from_port       = 0    //any
-    to_port         = 0    //any
-    protocol        = "-1" //all
-    cidr_blocks     = ["0.0.0.0/0"]
-    prefix_list_ids = []
-  }
-
-  tags = {
-    Name = "${var.depl_env_prefix}-myapp-sg"
-  }
-}
-
 resource "aws_internet_gateway" "myapp-igw" {
   vpc_id = aws_vpc.myapp-vpc.id
-
   tags = {
     Name = "${var.depl_env_prefix}-tf-myapp-igw"
   }
 }
 
 
-resource "aws_route_table" "myapp-rtb" {
+# Option 1: Create new aws_route_table, and then aws_route_table_association 
+
+resource "aws_route_table" "myapp-route-table" {
   vpc_id = aws_vpc.myapp-vpc.id
 
   route {
@@ -109,22 +67,119 @@ resource "aws_route_table" "myapp-rtb" {
     gateway_id = aws_internet_gateway.myapp-igw.id
   }
 
+  # default route, mapping VPC CIDR block to "local", created implicitly and
+  # doesn't need/cannot be specified.
+
   tags = {
-    Name = "${var.depl_env_prefix}-tf-myapp-rtb"
+    Name = "${var.depl_env_prefix}-tf-myapp-route-table"
   }
 }
 
 # Associate subnet with Route Table
 resource "aws_route_table_association" "a-rtb-subnet" {
   subnet_id      = aws_subnet.myapp-subnet-1.id
-  route_table_id = aws_route_table.myapp-rtb.id
+  route_table_id = aws_route_table.myapp-route-table.id
 }
+
+
+# # Option 2: Use the aws created default route table, as below (adoption) (advanced resource)
+
+# resource "aws_default_route_table" "myapp-default-rtb" {
+#   default_route_table_id = aws_vpc.myapp-vpc.default_route_table_id
+
+#   route {
+#     cidr_block = "0.0.0.0/0"
+#     gateway_id = aws_internet_gateway.myapp-igw.id
+#   }
+
+#   tags = {
+#     Name = "${var.depl_env_prefix}-tf-myapp-default-rtb"
+#   }
+# }
+
+// Option 1: Create new security group
+resource "aws_security_group" "myapp-sg" {
+  name        = "${var.depl_env_prefix}-tf-myapp-sg"
+  description = "myapp security group"
+  vpc_id      = aws_vpc.myapp-vpc.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.my_ip, var.ec2_ansible_server_ip]
+  }
+
+  ingress {
+    from_port   = 8080
+    to_port     = 8081
+    protocol    = "tcp"
+    cidr_blocks = [var.my_ip]
+  }
+
+  ingress {
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = [var.my_ip]
+  }
+
+  egress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    cidr_blocks     = ["0.0.0.0/0"]
+    prefix_list_ids = []
+  }
+
+  tags = {
+    Name = "${var.depl_env_prefix}-security-group"
+  }
+}
+
+
+# # Option 2: Use the aws created, default security group (adoption) (advanced resource)
+# resource "aws_default_security_group" "myapp-default-sg" {
+#   vpc_id = aws_vpc.myapp-vpc.id
+
+#   ingress {
+#     description = "Inbound SSH"
+#     from_port   = 22
+#     to_port     = 22
+#     protocol    = "tcp"
+#     cidr_blocks = [var.my_ip]
+#   }
+
+#   ingress {
+#     description = "Inbound HTTP"
+#     from_port   = 8080
+#     to_port     = 8080
+#     protocol    = "tcp"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
+
+#   egress {
+#     description     = "Outbound ALL"
+#     from_port       = 0    //any
+#     to_port         = 0    //any
+#     protocol        = "-1" //all
+#     cidr_blocks     = ["0.0.0.0/0"]
+#     prefix_list_ids = []
+#   }
+
+#   tags = {
+#     Name = "${var.depl_env_prefix}-myapp-use-default-sg"
+#   }
+# }
+
+
 
 //ssh key myst be present and created beforehand
 resource "aws_key_pair" "myapp-ssh-key" {
   key_name   = "myapp-server-key"
   public_key = file(var.public_key_location) //doesn't use interpolation syntax ${} as there is no string
 }
+
 
 resource "aws_instance" "myapp-server" {
   ami                         = data.aws_ami.amazon-linux-latest.id
@@ -161,8 +216,8 @@ resource "null_resource" "run-playbook-on-server" {
   }
 
   provisioner "local-exec" {
-    working_dir = "/home/mltamd/learn/ansible/learn-ansible"
-    command     = "ansible-playbook --inventory ${aws_instance.myapp-server.public_ip}, --private-key ${var.ssh_private_key} --user ec2-user deploy-ansdok-newuser.yml"
+    working_dir = "/home/ubuntu/learn-ansible/"
+    command     = "ansible-playbook --inventory ${aws_instance.myapp-server.public_ip}, --private-key ${var.ssh_private_key} --user ec2-user deploy-ANSER3-ansdok-newuser-2.yml"
   }
 
 }
