@@ -67,6 +67,8 @@
         append: yes
 - name: Docker pull image and run container with compose
   hosts: all
+  become: True
+  become_user: mlt  
   # vars_prompt:
   # - name: password
   #   prompt: What is your password?
