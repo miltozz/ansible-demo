@@ -13,7 +13,7 @@ pipeline {
                     //Jenkins ssh agent doesn't work with new BEGIN OPENSSH PRIVATE KEY keys. it needs BEGIN RSA PRIVATE KEY.it needs PEM
                     //generate or convert keys with smth like 'ssh-keygen -m PEM -t rsa -P "" -f afile'
                     //docker-paris is ans-server-key 
-                    sshagent(['testing-key-dsp']){
+                    sshagent(['testing-key']){
                         // ${ANSIBLE_SERVER}:/home/ubuntu without [user]ubuntu will give jenkins@${ANSIBLE_SERVER}:/home/ubuntu                        
                         sh "scp -o StrictHostKeyChecking=no ansible/* ubuntu@${ANSIBLE_SERVER}:/home/ubuntu/testdir"
                     
