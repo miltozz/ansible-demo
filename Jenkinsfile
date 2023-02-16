@@ -70,7 +70,7 @@ pipeline {
 
                         // sshCommand remote: remote, command:'export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}'
                         // sshCommand remote: remote, command:'export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}'
-                        sshCommand remote: remote, command:'export PATH=$PATH:/home/ubuntu/.local/bin; echo $PATH; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph'
+                        sshCommand remote: remote, command:'export PATH=$PATH:/home/ubuntu/.local/bin; echo $PATH; ansible-inventory -i testdir/dynamic_inv_aws_ec2.yml --graph'
                       
                         //ALSO!!  ~/.profile adds $HOME/.local/bin to PATH. It is available after logout/login or reboot.
                         // sshCommand remote: remote, command: 'export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-playbook install_dock_and_compose_pb.yml'
