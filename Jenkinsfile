@@ -24,7 +24,7 @@ pipeline {
                         //https://plugins.jenkins.io/credentials-binding/
                         withCredentials([sshUserPrivateKey(credentialsId: 'ec2-nodes-key', keyFileVariable: 'keyfile', usernameVariable: 'user')]) {
                             //if key exists. it has permission 400 and pipeline fails
-                            //sh 'scp $keyfile ubuntu@$ANSIBLE_SERVER:/home/ubuntu/testdir/ssh-key.pem'
+                            sh 'scp $keyfile ubuntu@$ANSIBLE_SERVER:/home/ubuntu/testdir/ssh-key.pem'
                         }
                     }
 
