@@ -63,7 +63,6 @@ pipeline {
                         remote.retryWaitSec = 30
                         sshCommand remote: remote, command: 'pwd; ls -l; echo $PATH'
                         //-- sshScript remote: remote, script: 'ansible/prepare-ansible-server-ec2-ubu-1.sh'
-                        sshCommand remote: remote, command: 'ansible --version'
                         sshCommand remote: remote, command:'export PATH=$PATH:/home/ubuntu/.local/bin'
                         sshCommand remote: remote, command: 'ansible --version'
                         sshCommand remote: remote, command:'ansible-inventory -i testdir/dynamic_inv_aws_ec2.yml --graph'
