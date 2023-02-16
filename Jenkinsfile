@@ -22,7 +22,7 @@ pipeline {
                         // note: single quotes prevent Groovy interpolation. double quoutes give unsafe warnings
                         //You should use a single quote (') instead of a double quote (") whenever you can. 
                         //https://plugins.jenkins.io/credentials-binding/
-                        withCredentials([sshUserPrivateKey(credentialsId: 'ec2-nodes-key', keyFileVariable: 'keyfile', usernameVariable: 'user')]) {
+                        withCredentials([sshUserPrivateKey(credentialsId: 'test-key-10', keyFileVariable: 'keyfile', usernameVariable: 'user')]) {
                             //if key exists. it has permission 400 and pipeline fails
                             sh 'scp $keyfile ubuntu@$ANSIBLE_SERVER:/home/ubuntu/testdir/ssh-key.pem'
                         }
@@ -62,11 +62,7 @@ pipeline {
                         remote.retryCount = 2
                         remote.retryWaitSec = 30
                         sshCommand remote: remote, command: 'pwd; ls -l; echo $PATH'
-                        //-- sshScript remote: remote, script: 'ansible/prepare-ansible-server-ec2-ubu-1.sh'
-                        sshCommand remote: remote, command:'export PATH=$PATH:/home/ubuntu/.local/bin'
-                        sshCommand remote: remote, command: 'echo $PATH'
-                        sshCommand remote: remote, command:'ansible-inventory -i testdir/dynamic_inv_aws_ec2.yml --graph'
-                                            
+                        //-- sshScript remote: remote, script: 'ansible/prepare-ansible-server-ec2-ubu-1.sh'                                            
 
                         
 
@@ -74,7 +70,7 @@ pipeline {
 
                         // sshCommand remote: remote, command:'export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}'
                         // sshCommand remote: remote, command:'export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}'
-                        //-- sshCommand remote: remote, command:'export PATH=$PATH:/home/ubuntu/.local/bin; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph'
+                        sshCommand remote: remote, command:'export PATH=$PATH:/home/ubuntu/.local/bin; echo $PATH; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph'
                       
                         //ALSO!!  ~/.profile adds $HOME/.local/bin to PATH. It is available after logout/login or reboot.
                         // sshCommand remote: remote, command: 'export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-playbook install_dock_and_compose_pb.yml'
