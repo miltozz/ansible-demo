@@ -31,8 +31,9 @@ pipeline {
                 }
             }
         }
-        // PROBLEM: aws credentials are read from Ansible-server's ~/.aws/credentials file. below env and exports do not work. 
-        // Possibly due to sinlge and double quotes and interpolation confusion
+        // PROBLEM: aws credentials are read from Ansible-server's ~/.aws/credentials file.
+        // below env and exports need double quotes to work with 'sshCommand remote: remote, command'
+        // Double quotes produce 'insecure warnings'
         stage("execute ansible playbook from the ansible-server") {
             environment {
                 AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
@@ -62,7 +63,7 @@ pipeline {
                         remote.retryCount = 2
                         remote.retryWaitSec = 30
                         sshCommand remote: remote, command: 'pwd; ls -l; echo $PATH'
-                        //-- sshScript remote: remote, script: 'ansible/prepare-ansible-server-ec2-ubu-1.sh'                                            
+                        sshScript remote: remote, script: 'ansible/prepare-ansible-server-ec2-ubu-1.sh'                                            
                         sshCommand remote: remote, command: "export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; echo $PATH; printenv"
 
                         
