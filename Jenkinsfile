@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        ANSIBLE_SERVER = "35.180.87.80" 
+        ANSIBLE_SERVER = "13.37.42.80" 
     }
  
     stages {
@@ -15,7 +15,7 @@ pipeline {
                     // END DEPRECATED INFO - IT WORKS OK NOW
                     sshagent(['docker-server-key']){
                         // ${ANSIBLE_SERVER}:/home/ubuntu without [user]ubuntu will give jenkins@${ANSIBLE_SERVER}:/home/ubuntu                        
-                        sh "scp -o StrictHostKeyChecking=no ansible/* ubuntu@${ANSIBLE_SERVER}:/home/ubuntu/testdir"
+                        sh "scp -o StrictHostKeyChecking=no ansible/* ubuntu@${ANSIBLE_SERVER}:/home/ubuntu"
                     
 
                         echo "copying ssh keys from Jenkins creds store to ansible-server for ec2 instances"
@@ -24,7 +24,7 @@ pipeline {
                         //https://plugins.jenkins.io/credentials-binding/
                         withCredentials([sshUserPrivateKey(credentialsId: 'test-key-10', keyFileVariable: 'keyfile', usernameVariable: 'user')]) {
                             //if key exists. it has permission 400 and pipeline fails
-                            //sh 'scp $keyfile ubuntu@$ANSIBLE_SERVER:/home/ubuntu/testdir/ssh-key.pem'
+                            sh 'scp $keyfile ubuntu@$ANSIBLE_SERVER:/home/ubuntu/ssh-key.pem'
                         }
                     }
 
@@ -35,8 +35,8 @@ pipeline {
         // Possibly due to sinlge and double quotes and interpolation confusion
         stage("execute ansible playbook from the ansible-server") {
             environment {
-                // AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
-                // AWS_SECRET_ACCESS_KEY = credentials('jenkins_aws_secret_access_key')
+                AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
+                AWS_SECRET_ACCESS_KEY = credentials('jenkins_aws_secret_access_key')
                 AAA='aaa'
                 
             }
@@ -70,8 +70,8 @@ pipeline {
 
                         // sshCommand remote: remote, command:'export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}'
                         // sshCommand remote: remote, command:'export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}'
-                        sshCommand remote: remote, command:'export PATH=$PATH:/home/ubuntu/.local/bin; echo $PATH; ansible-inventory -i testdir/dynamic_inv_aws_ec2.yml --graph'
-                        sshCommand remote: remote, command:'export PATH=$PATH:/home/ubuntu/.local/bin; ansible-playbook -i testdir/dynamic_inv_aws_ec2.yml testdir/install_dock_sample.yml'
+                        //sshCommand remote: remote, command:'export PATH=$PATH:/home/ubuntu/.local/bin; echo $PATH; ansible-inventory -i testdir/dynamic_inv_aws_ec2.yml --graph'
+                        //sshCommand remote: remote, command:'export PATH=$PATH:/home/ubuntu/.local/bin; ansible-playbook -i testdir/dynamic_inv_aws_ec2.yml testdir/install_dock_sample.yml'
                       
                         //ALSO!!  ~/.profile adds $HOME/.local/bin to PATH. It is available after logout/login or reboot.
                         // sshCommand remote: remote, command: 'export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-playbook ansible\install_dock_sample.yml'
