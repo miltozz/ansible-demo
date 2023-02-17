@@ -24,7 +24,7 @@ pipeline {
                         //https://plugins.jenkins.io/credentials-binding/
                         withCredentials([sshUserPrivateKey(credentialsId: 'test-key-10', keyFileVariable: 'keyfile', usernameVariable: 'user')]) {
                             //if key exists. it has permission 400 and pipeline fails
-                            sh 'scp $keyfile ubuntu@$ANSIBLE_SERVER:/home/ubuntu/ssh-key.pem'
+                            //sh 'scp $keyfile ubuntu@$ANSIBLE_SERVER:/home/ubuntu/ssh-key.pem'
                         }
                     }
 
@@ -63,7 +63,7 @@ pipeline {
                         remote.retryWaitSec = 30
                         sshCommand remote: remote, command: 'pwd; ls -l; echo $PATH'
                         //-- sshScript remote: remote, script: 'ansible/prepare-ansible-server-ec2-ubu-1.sh'                                            
-                        sshCommand remote: remote, command: 'export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; echo $PATH; printenv'
+                        sshCommand remote: remote, command: "export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; echo $PATH; printenv"
 
                         
 
