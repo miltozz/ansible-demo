@@ -64,15 +64,14 @@ pipeline {
                         remote.retryWaitSec = 30
                         sshCommand remote: remote, command: 'pwd; ls -l; echo $PATH'
                         //sshScript remote: remote, script: 'ansible/prepare-ansible-server-ec2-ubu-1.sh'                                            
-                        sshCommand remote: remote, command: "export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph"
+                        sshCommand remote: remote, command: "export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph; ansible-playbook -i dynamic_inv_aws_ec2.yml install_dock_sample.yml"
+                        
                         
 
                         //ansible-playbook command not found. sshd_config:PermitUserEnvironment: UNSAFE. Or export the path of ansible,as below 
 
-                        // sshCommand remote: remote, command:'export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}'
+
                         // sshCommand remote: remote, command:'export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}'
-                        //sshCommand remote: remote, command:'export PATH=$PATH:/home/ubuntu/.local/bin; echo $PATH; ansible-inventory -i testdir/dynamic_inv_aws_ec2.yml --graph'
-                        //sshCommand remote: remote, command:'export PATH=$PATH:/home/ubuntu/.local/bin; ansible-playbook -i testdir/dynamic_inv_aws_ec2.yml testdir/install_dock_sample.yml'
                       
                         //ALSO!!  ~/.profile adds $HOME/.local/bin to PATH. It is available after logout/login or reboot.
                         // sshCommand remote: remote, command: 'export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-playbook ansible\install_dock_sample.yml'
