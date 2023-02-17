@@ -1,7 +1,13 @@
 pipeline {
     agent any
     environment {
-        ANSIBLE_SERVER = "13.37.42.80" 
+        //the ansible server ip
+        ANSIBLE_SERVER = "13.37.42.80"
+
+        // defined in jenkins creds. is the private key copied into ansible server, 
+        // so it can connect to the target node instances that were created in ec2
+        // with the corresponding public key
+        TARGET_NODES_KEYNAME = "test-key-10" 
     }
  
     stages {
@@ -18,13 +24,13 @@ pipeline {
                         sh "scp -o StrictHostKeyChecking=no ansible/* ubuntu@${ANSIBLE_SERVER}:/home/ubuntu"
                     
 
-                        echo "copying ssh keys from Jenkins creds store to ansible-server for ec2 instances"
+                        echo "copying ssh keys from Jenkins creds store to ansible-server for ec2 target instances"
                         // note: single quotes prevent Groovy interpolation. double quoutes give unsafe warnings
                         //You should use a single quote (') instead of a double quote (") whenever you can. 
                         //https://plugins.jenkins.io/credentials-binding/
-                        withCredentials([sshUserPrivateKey(credentialsId: 'test-key-10', keyFileVariable: 'keyfile', usernameVariable: 'user')]) {
+                        withCredentials([sshUserPrivateKey(credentialsId: "${TARGET_NODES_KEYNAME}", keyFileVariable: 'keyfile', usernameVariable: 'user')]) {
                             //if key exists. it has permission 400 and pipeline fails
-                            //sh 'scp $keyfile ubuntu@$ANSIBLE_SERVER:/home/ubuntu/ssh-key.pem'
+                            sh 'scp $keyfile ubuntu@$ANSIBLE_SERVER:/home/ubuntu/ssh-key.pem'
                         }
                     }
 
@@ -70,6 +76,7 @@ pipeline {
                         //----BAD SOLUTION: sshd_config:PermitUserEnvironment: UNSAFE.
                         //----GOOD SOLUTION: always export the path of ansible,as below 
 
+                        //we can skip '-i dynamic_inv_aws_ec2.yml' on ansible-playbook execution, since it is defined in ansible.cfg
                         sshCommand remote: remote, command: "export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph; ansible-playbook install_dock_sample.yml"
                                        
                         // ~/.profile adds $HOME/.local/bin to PATH. It is available after logout/login or reboot.
