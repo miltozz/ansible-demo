@@ -34,6 +34,8 @@ pipeline {
         // PROBLEM: aws credentials are read from Ansible-server's ~/.aws/credentials file.
         // below env and exports need double quotes to work with 'sshCommand remote: remote, command'
         // Double quotes produce 'insecure warnings'
+        //
+        // Better to create the .aws/creds in the server manually or with ssh remote script: create_aws_creds.
         stage("execute ansible playbook from the ansible-server") {
             environment {
                 AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
@@ -64,17 +66,14 @@ pipeline {
                         remote.retryWaitSec = 30
                         sshCommand remote: remote, command: 'pwd; ls -l; echo $PATH'
                         //sshScript remote: remote, script: 'ansible/prepare-ansible-server-ec2-ubu-1.sh'                                            
-                        sshCommand remote: remote, command: "export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph; ansible-playbook -i dynamic_inv_aws_ec2.yml install_dock_sample.yml"
-                        
-                        
+                        //ansible-playbook command not found. 
+                        //----BAD SOLUTION: sshd_config:PermitUserEnvironment: UNSAFE.
+                        //----GOOD SOLUTION: always export the path of ansible,as below 
 
-                        //ansible-playbook command not found. sshd_config:PermitUserEnvironment: UNSAFE. Or export the path of ansible,as below 
-
-
-                        // sshCommand remote: remote, command:'export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}'
-                      
-                        //ALSO!!  ~/.profile adds $HOME/.local/bin to PATH. It is available after logout/login or reboot.
-                        // sshCommand remote: remote, command: 'export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-playbook ansible\install_dock_sample.yml'
+                        sshCommand remote: remote, command: "export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph; ansible-playbook install_dock_sample.yml"
+                                       
+                        // ~/.profile adds $HOME/.local/bin to PATH. It is available after logout/login or reboot.
+                        // BUT sshd_config still DOESN'T ALLOW user environment(and path) to the ssh command..
                     }
 
                 }
