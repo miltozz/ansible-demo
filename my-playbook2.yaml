@@ -2,13 +2,14 @@
 - name: Configure nginx webserver
   hosts: webserver
   tasks:
+    - name: stop nginx
+      service:
+        name: nginx
+        state: stopped
+      become: yes    
     - name: uninstall nginx server
       apt:
         name: nginx=1.18.0-6ubuntu14.1
         state: absent
       become: yes
-    - name: stop nginx
-      service:
-        name: nginx
-        state: stopped
-      become: yes
+
