@@ -7,11 +7,14 @@
       ansible.builtin.apt:
         update_cache: yes
         cache_valid_time: 3600
-    - name: Install nodejs and npm
+    # acl is installed as a workaound to avoid becoming unprivileged user when becoming [user1]
+    # https://docs.ansible.com/ansible-core/2.13/user_guide/become.html#risks-of-becoming-an-unprivileged-user"
+    - name: Install nodejs and npm and acl
       ansible.builtin.apt:
         pkg:
           - nodejs
           - npm
+          - acl
 
 - name: Create new linux user
   hosts: init
