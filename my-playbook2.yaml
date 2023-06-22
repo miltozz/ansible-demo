@@ -1,15 +1,17 @@
 ---
-- name: Configure nginx webserver
+- name: Stop and remove nginx webserver
   hosts: webserver
+  become: yes
   tasks:
-    - name: stop nginx
+    - name: stop nginx service
       service:
         name: nginx
-        state: stopped
-      become: yes    
+        state: stopped    
     - name: uninstall nginx server
       apt:
-        name: nginx=1.18*
+        name: nginx
         state: absent
-      become: yes
+        autoremove: true
+        purge: true        
+      
 
