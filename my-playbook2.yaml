@@ -9,7 +9,7 @@
       become: yes    
     - name: uninstall nginx server
       apt:
-        name: nginx=1.18.0-6ubuntu14.1
+        name: nginx=1.18*
         state: absent
       become: yes
 
