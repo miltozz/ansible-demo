@@ -1,5 +1,0 @@
-node_artifact_location: /home/mltamd/play/node-app-master
-app_version: 1.0.1
-user_name: user1
-user_home_location: /home/{{user_name}}
-
