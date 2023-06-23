@@ -26,22 +26,24 @@
   vars_files:
     - project-vars
   tasks:
-    # Download nexus on the server, unpack in /opt
-    #
-    # CONCEPT DEMONSTRATION: Use a registered var in a task to reference something in the next task.
-    #  Here it could be an alternative method as follows:
-    #  1) use ger_url module to download nexus installer file in /opt.  url:<src> dest:<path>
-    #  1b) problem: latest version changes often. which version we use in the unarchive, src field?
-    #  2) solution: register the download_result var, and use it in unarchive as source, to
-    #     reference the downloaded file and version as {{download_result.dest}}
-    # use status module. check if exists or other status info
-
+    # We use a registered var in a task to reference something in the next task.
+    # Using status module. check if exists or other status info
     - name: Check if Nexus directory exists
       stat:
         path: /opt/nexus
       register: stat_result
     - debug: msg={{stat_result.stat.exists}}
+    - debug: msg={{stat_result}}
 
+    # Download nexus on the remote server, unpack in /opt
+    #
+    # https://docs.ansible.com/ansible/latest/collections/ansible/builtin/unarchive_module.html
+    # If remote_src=no (default), local path to archive file to copy to the target server; can be absolute or relative.
+    # If remote_src=yes, path on the target server to existing archive file to unpack.
+    # If remote_src=yes and src contains ://, the remote machine will download the file from the URL first.
+    #
+    # This is only for simple cases, for full download support use the ansible.builtin.get_url module.
+    #
     - name: Copy and unpack on server
       unarchive:
         src: https://download.sonatype.com/nexus/3/latest-unix.tar.gz
@@ -49,8 +51,32 @@
         remote_src: yes
       when: not stat_result.stat.exists
 
-    # following modules are for demonstrating concepts.
-    # Renaming the folder could very well be skipped
+    # # Another method/option:
+    # #  We use get_url module to download nexus installer file in /opt.  url:<src> dest:<path>
+    # #
+    # #  Possible problem: if latest version changes often, which version we use in the unarchive, src field?
+    # #  Solution: register the geturl_result var, and use it in unarchive as source, to reference the downloaded file and path "{{geturl_result.dest}}"
+
+    #   # Download with get_url
+    #   - name: Download nexus archive with get_url
+    #     get_url:
+    #       url: https://download.sonatype.com/nexus/3/latest-unix.tar.gz
+    #       dest: /opt
+    #       # group: nexus // group not created yet
+    #       # owner: nexus // user not created yet
+    #     register: geturl_result
+    #     when: not stat_result.stat.exists
+
+    #   # Unarchive for the get-url method
+    #   - name: Unarchive the get_url downloaded file
+    #     unarchive:
+    #       src: "{{geturl_result.dest}}"
+    #       dest: /opt
+    #       remote_src: yes
+    #     when: not stat_result.stat.exists
+
+    # following modules are mainly for demonstrating concepts.
+    # e.g. renaming the folder could be skipped
 
     #demonstrate find module. find nexus directory and rename it
     - name: Find Nexus directory
@@ -81,12 +107,11 @@
         name: nexus
         group: nexus
         shell: /bin/bash
-    # use of find and then use builtin command or shell could be used to
-    # find the nexus-30.0.1 folder, register it, and then use it to chown.
-    # but it is considered bad practice as ansible has no control over them
-    # and breaks idempotency.
-    # try to use modules when possible
-    # thus, we use file module to chown
+
+    # Use of find and then use builtin command or shell could be used to find the nexus-* folder, register it, and then use it to chown.
+    # BUT it is considered bad practice as ansible has no control over those builtins and so it breaks idempotency.
+    #
+    # Try to use modules when possible thus, we use file module to chown
     - name: Use file module to make nexus owner of nexus folder
       ansible.builtin.file:
         path: /opt/nexus
@@ -102,7 +127,8 @@
         group: nexus
         recurse: yes
 
-    #alternate method with find and dynamic folder name, using file and not command or shell
+    #An alternate method with find and dynamic folder name
+
     # - name: Find Nexus directory again
     #   find:
     #     paths: /opt
@@ -111,8 +137,7 @@
     #   register: find_result
     # - debug: msg={{find_result}}
 
-    # NEEDS when for directory exists??
-    # - name: Use file module to make nexus owner of nexus-30-blah-blah folder
+    # - name: Use file module to make nexus owner of nexus-blah-blah folder
     #   ansible.builtin.file:
     #     path: "{{find_result.files[0].path}}"
     #     state: directory
@@ -120,42 +145,45 @@
     #     group: nexus
     #     recurse: yes
 
-- name: Stat nexus with user nexus
+- name: Start nexus with user nexus
   hosts: nexus
   become: True
   become_user: nexus
   tasks:
-    # autocomments stuff and adds an ANSIBLE MANAGED BLOCK in the file
+    # Auto-comments stuff and adds an ANSIBLE MANAGED BLOCK in the file
     - name: Set run_as_user in nexus.rc using multiline file module, blockinfile
       blockinfile:
         path: /opt/nexus/bin/nexus.rc
         block: |
           run_as_user="nexus"
 
-    # # OR WE CAN USE lineinfile module for single line changes
-    # # Ensures line exists or replaces single line using regex
-    # # (note: use 'replace' module to change multiple lines)
+    # # Alternate method: Use lineinfile module for single line changes
+    # #   Ensures line exists or replaces single line using regex
+    # #   (Note: use 'replace' module to change multiple lines)
+
     # - name: Set run_as_user in nexus.rc single-line file module, lineinfile
     #   lineinfile:
     #     path: /opt/nexus/bin/nexus.rc
     #     regexp: '^#run_as_user=""'
     #     line: run_as_user="nexus"
-    - name: Start nexus as nexus
-      ansible.builtin.command: /opt/nexus/bin/nexus start
 
-- name: Verify nexus running
-  hosts: nexus
-  become: yes
-  tasks:
-    # alternative solution: module wait_for
-    - name: wait 1 minute for nexus server up and port open
-      ansible.builtin.pause:
-        minutes: 1
-    - name: Check ps
-      ansible.builtin.shell: ps aux | grep nexus
-      register: ps_result
-    - debug: msg={{ps_result.stdout_lines}}
-    - name: Check active servers listening with netstat
-      ansible.builtin.shell: netstat -lpnt
-      register: ns_result
-    - debug: msg={{ns_result.stdout_lines}}
+# COMMENTED TO NOT START NEXUS
+#     - name: Start nexus as nexus
+#       ansible.builtin.command: /opt/nexus/bin/nexus start
+
+# - name: Verify nexus running
+#   hosts: nexus
+#   become: yes
+#   tasks:
+#     # alternative solution: module wait_for
+#     - name: wait 1 minute for nexus server up and port open
+#       ansible.builtin.pause:
+#         minutes: 1
+#     - name: Check ps
+#       ansible.builtin.shell: ps aux | grep nexus
+#       register: ps_result
+#     - debug: msg={{ps_result.stdout_lines}}
+#     - name: Check active servers listening with netstat
+#       ansible.builtin.shell: netstat -lpnt
+#       register: ns_result
+#     - debug: msg={{ns_result.stdout_lines}}
