@@ -1,5 +1,4 @@
-node_artifact_location: /home/ubuntu/node-app/app
+node_artifact_location: /node-app-path-on-local/
 app_version: 1.0.0
 user_name: nodeuser
 user_home_location: /home/{{user_name}}
-
