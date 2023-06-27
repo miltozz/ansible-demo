@@ -3,6 +3,7 @@ regions:
   - eu-west-3
 filters:
   # All instances with their `Environment` tag set to `dev`
+  #tag:Environment: dev
   # All instances with their `Name` tag set to `node` or we could 'nod*'
   tag:Name: nod*
 keyed_groups:
