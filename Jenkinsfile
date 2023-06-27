@@ -20,7 +20,8 @@ pipeline {
                     // generate or convert keys with smth like 'ssh-keygen -m PEM -t rsa -P "" -f afile'
                     // END DEPRECATED INFO - IT WORKS OK NOW
                     sshagent(['docker-server-key']){
-                        // ${ANSIBLE_SERVER}:/home/ubuntu without [user]ubuntu will give jenkins@${ANSIBLE_SERVER}:/home/ubuntu                        
+                        // ${ANSIBLE_SERVER}:/home/ubuntu without [user]ubuntu will give jenkins@${ANSIBLE_SERVER}:/home/ubuntu
+                        // basically it defaults to [jenkins] if we don't specify user                        
                         sh "scp -o StrictHostKeyChecking=no ansible/* ubuntu@${ANSIBLE_SERVER}:/home/ubuntu"
                     
                         echo "copying ssh keys from Jenkins creds store to ansible-server for ec2 target instances"
@@ -73,7 +74,7 @@ pipeline {
                         remote.retryWaitSec = 30
                         sshCommand remote: remote, command: 'pwd; ls -l; echo $PATH'
                         //execute local script file, in the remote host
-                        //sshScript remote: remote, script: 'ansible/prepare-ansible-server-ec2-ubu-1.sh'
+                        //sshScript remote: remote, script: 'ansible/ansible-server-prepare-ec2-ubuntu.sh'
 
                         //ansible-playbook command not found. 
                         //----BAD SOLUTION: sshd_config:PermitUserEnvironment: UNSAFE.
@@ -86,7 +87,7 @@ pipeline {
                         // or pass them in every command
 
                         //we can skip '-i dynamic_inv_aws_ec2.yml' on ansible-playbook execution, since it is defined in ansible.cfg
-                        sshCommand remote: remote, command: "export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph; ansible-playbook install_dock_sample.yml"
+                        sshCommand remote: remote, command: "export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph; ansible-playbook install_dockr_ec2-linux-sample.yml"
                                        
                         // ~/.profile adds $HOME/.local/bin to PATH. It is available after logout/login or reboot.
                         // BUT sshd_config still DOESN'T ALLOW user environment(and path) to the ssh command..

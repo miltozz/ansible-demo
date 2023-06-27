@@ -13,4 +13,4 @@ python3 -m pip install --user ansible
 #   Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
 #
 #   Note: They are added to PATH (by entry in ~/.profile) after reboot or relogin
-pip3 install boto3
+pip install boto3
