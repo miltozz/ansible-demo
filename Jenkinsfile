@@ -30,6 +30,7 @@ pipeline {
                         // https://plugins.jenkins.io/credentials-binding/
                         withCredentials([sshUserPrivateKey(credentialsId: "${TARGET_NODES_KEYNAME}", keyFileVariable: 'keyfile', usernameVariable: 'user')]) {
                             // single quotes - different syntax than above. works ok.
+                            //
                             //if key exists. it has permission 400 and pipeline fails
                             sh 'scp $keyfile ubuntu@$ANSIBLE_SERVER:/home/ubuntu/ssh-key.pem'
                         }
@@ -52,15 +53,19 @@ pipeline {
                 script {
                     echo "executing ansible-playbook"
 
-                    // jenkins plugin Ssh Pipeline Steps uses old JSch which doesn't support newer SSH versions with keys >= 3072 bits?
-                    // we generate and use RSA PEM type of key, add private to Jenkins creds and public in ansible server's authorized_keys
+                    // Jenkins plugin Ssh Pipeline Steps uses old JSch which doesn't support newer SSH versions(BEGIN OPEN SSH)
+                    // Generate and use RSA type of key, add private to Jenkins creds and public in Ansible Control Seerver's authorized_keys
+                    //
                     // But newer SSH versions deprecate SHA1 and as result we have AUTH_FAIL for RSA keys of SHA1 ??
                     // So the RSA key is rejected with default sshd_conf
-                    // On ansible server, on /var/log/auth.log I found: userauth_pubkey: key type ssh-rsa not in PubkeyAcceptedAlgorithms [preauth]
-                    // Temp_fix:  /etc/ssh/sshd_config--> PubkeyAuthentication yes and PubkeyAcceptedKeyTypes=+ssh-rsa
+                    // On ansible server, on /var/log/auth.log: userauth_pubkey: key type ssh-rsa not in PubkeyAcceptedAlgorithms [preauth]
+                    //
+                    // Temp_fix:  /etc/ssh/sshd_config--> Uncomment PubkeyAuthentication yes and add PubkeyAcceptedKeyTypes=+ssh-rsa
                     // then sudo service sshd reload
                     //
                     // SECURITY CONCERN? Using deprecated formats?
+                    //
+                    // Jenkins creds has 'ans-server-key' as 'some-rsa-key'
                     def remote = [:]
                     remote.name = "ansible-server-ec2"
                     remote.host = ANSIBLE_SERVER
@@ -82,13 +87,13 @@ pipeline {
                         
                         //always export any paths or env variables in each ssh command, as they don't persist between ssh sessions.
                         // e.g if using 'export PATH=$PATH:/home/ubuntu/.local/bin'
-                        // or 'export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID};' (if there is no .aws/creds in the remote ansible server) 
+                        // or 'export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID};' (if there are no .aws/creds in the remote ansible server) 
                         // use one command, like below
                         // or pass them in every command
 
                         //we can skip '-i dynamic_inv_aws_ec2.yml' on ansible-playbook execution, since it is defined in ansible.cfg
                         //sshCommand remote: remote, command: "export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph; ansible-playbook install_dockr_ec2-linux-sample.yml"
-                                       
+                        sshCommand remote: remote, command: "export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph"
                         // ~/.profile adds $HOME/.local/bin to PATH. It is available after logout/login or reboot.
                         // BUT sshd_config still DOESN'T ALLOW user environment(and path) to the ssh command..
                     }
