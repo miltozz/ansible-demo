@@ -66,7 +66,7 @@ pipeline {
                     remote.host = ANSIBLE_SERVER
                     remote.allowAnyHosts = true
                     
-                    withCredentials([sshUserPrivateKey(credentialsId: 'docker-server-key', keyFileVariable: 'keyfile', usernameVariable: 'username')]) {
+                    withCredentials([sshUserPrivateKey(credentialsId: 'some-rsa-key', keyFileVariable: 'keyfile', usernameVariable: 'username')]) {
                         remote.identityFile = keyfile
                         remote.user = username
                         remote.timeoutSec = 60
