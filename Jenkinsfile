@@ -80,7 +80,7 @@ pipeline {
                         sshCommand remote: remote, command: 'pwd; ls -l; echo $PATH'
                         //execute local script file, in the remote host
                         //sshScript remote: remote, script: 'ansible/ansible-server-prepare-ec2-ubuntu.sh'
-
+                        sshScript remote: remote, script: 'ansible/test-script.sh'
                         //ansible-playbook command not found. 
                         //----BAD SOLUTION: sshd_config:PermitUserEnvironment: UNSAFE.
                         //----GOOD SOLUTION: always export the path of ansible,as below 
