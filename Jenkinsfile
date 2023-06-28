@@ -32,7 +32,7 @@ pipeline {
                             // single quotes - different syntax than above. works ok.
                             //
                             //if key exists. it has permission 400 and pipeline fails
-                            sh 'scp $keyfile ubuntu@$ANSIBLE_SERVER:/home/ubuntu/ssh-key.pem'
+                            sh 'if ! [ -f "ssh-key.pem" ]; then scp $keyfile ubuntu@$ANSIBLE_SERVER:/home/ubuntu/ssh-key.pem; fi'
                         }
                     }
 
@@ -43,7 +43,7 @@ pipeline {
         // below env and exports need double quotes to work with 'sshCommand remote: remote, command'
         // Double quotes produce 'insecure warnings'
         //
-        // Maybe better to create the .aws/creds in the server manually or with ssh remote script: create_aws_creds.
+        // Maybe better to create the .aws/creds in the server manually (maybe some script like: wip_create_aws_creds)
         stage("execute ansible playbook from the ansible-server") {
             environment {
                 AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
@@ -80,7 +80,7 @@ pipeline {
                         sshCommand remote: remote, command: 'pwd; ls -l; echo $PATH'
                         //execute local script file, in the remote host
                         //sshScript remote: remote, script: 'ansible/ansible-server-prepare-ec2-ubuntu.sh'
-                        sshScript remote: remote, script: 'ansible/test-script.sh'
+                        
                         //ansible-playbook command not found. 
                         //----BAD SOLUTION: sshd_config:PermitUserEnvironment: UNSAFE.
                         //----GOOD SOLUTION: always export the path of ansible,as below 
