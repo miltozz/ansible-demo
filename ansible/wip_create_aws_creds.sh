@@ -14,3 +14,7 @@ if ! [[ -e "$AWS_PATH" ]]; then
   SECRET="aws_secret_access_key = "
   echo $SECRET$AWS_SECRET_ACCESS_KEY >> $AWS_PATH
 fi
+
+
+#note
+if ! [ -f "ssh-key.pem" ]; then echo "NOT PRESENT"; else echo "EXISTS" ;fi
