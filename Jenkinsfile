@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         // the ansible server ip
-        ANSIBLE_SERVER = "13.37.42.80"
+        ANSIBLE_SERVER = "13.38.56.107"
 
         // defined in jenkins creds. is the private key copied into ansible server, 
         // so it can connect to the target node instances that were created in ec2
@@ -66,7 +66,7 @@ pipeline {
                     remote.host = ANSIBLE_SERVER
                     remote.allowAnyHosts = true
                     
-                    withCredentials([sshUserPrivateKey(credentialsId: 'some-rsa-key', keyFileVariable: 'keyfile', usernameVariable: 'username')]) {
+                    withCredentials([sshUserPrivateKey(credentialsId: 'docker-server-key', keyFileVariable: 'keyfile', usernameVariable: 'username')]) {
                         remote.identityFile = keyfile
                         remote.user = username
                         remote.timeoutSec = 60
@@ -87,7 +87,7 @@ pipeline {
                         // or pass them in every command
 
                         //we can skip '-i dynamic_inv_aws_ec2.yml' on ansible-playbook execution, since it is defined in ansible.cfg
-                        sshCommand remote: remote, command: "export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph; ansible-playbook install_dockr_ec2-linux-sample.yml"
+                        //sshCommand remote: remote, command: "export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph; ansible-playbook install_dockr_ec2-linux-sample.yml"
                                        
                         // ~/.profile adds $HOME/.local/bin to PATH. It is available after logout/login or reboot.
                         // BUT sshd_config still DOESN'T ALLOW user environment(and path) to the ssh command..
