@@ -2,13 +2,13 @@
 - name: Install python3, docker, docker-compose
   hosts: all
   become: yes
-  gather_facts: False
+  gather_facts: True
   tasks:
     - name: Install python3 and docker
       vars:
         #in case python3 is not installed
         ansible_python_interpreter: /usr/bin/python
-      package:
+      yum:
         name:
           - python3
           - docker
