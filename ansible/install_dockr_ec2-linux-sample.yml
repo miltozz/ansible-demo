@@ -32,6 +32,6 @@
     - name: Reconnect to server
       meta: reset_connection
     - name: Show system info
-      ansible.builtin.shell: ls -lah >> out.txt
+      ansible.builtin.shell: uname -a >> out.txt
 
 
