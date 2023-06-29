@@ -31,7 +31,7 @@
     # reset connection so ec2-user gets the newly assigned group
     - name: Reconnect to server
       meta: reset_connection
-    - name: Show system info
-      ansible.builtin.shell: uname -a >> out.txt
+    - name: Write system info in out.txt
+      ansible.builtin.shell: uname -a > out.txt
 
 
