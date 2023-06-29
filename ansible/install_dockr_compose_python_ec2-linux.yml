@@ -9,7 +9,7 @@
         #in case python3 is not installed
         ansible_python_interpreter: /usr/bin/python
       ansible.builtin.yum:
-        #use_backend: dnf
+        use_backend: dnf
         name:
           - python3
           - docker
