@@ -32,7 +32,7 @@ pipeline {
                             // single quotes - different syntax than above. works ok.
                             //
                             //if key exists. it has permission 400 and pipeline fails
-                            sh 'scp $keyfile ubuntu@$ANSIBLE_SERVER:/home/ubuntu/ssh-key.pem'
+                            //UNCOMMENT FOR FIRST RUN//sh 'scp $keyfile ubuntu@$ANSIBLE_SERVER:/home/ubuntu/ssh-key.pem'
                         }
                     }
 
