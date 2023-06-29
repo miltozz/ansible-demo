@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         // the ansible server ip
-        ANSIBLE_SERVER = "13.38.56.107"
+        ANSIBLE_SERVER = "13.37.245.187"
 
         // defined in jenkins creds. is the private key copied into ansible server, 
         // so it can connect to the target node instances that were created in ec2
