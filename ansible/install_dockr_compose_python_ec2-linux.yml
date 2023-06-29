@@ -12,6 +12,7 @@
         name:
           - docker
           - python3
+          - pip
         update_cache: yes
         state: present
         #use_backend: "dnf"
