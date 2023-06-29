@@ -32,7 +32,6 @@
     - name: Reconnect to server
       meta: reset_connection
     - name: Show system info
-      ansible.builtin.command: ls -lah
-      register: somevar
+      ansible.builtin.shell: ls -lah >> out.txt
 
 
