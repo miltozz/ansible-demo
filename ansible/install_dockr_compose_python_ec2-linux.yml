@@ -8,7 +8,8 @@
       vars:
         #in case python3 is not installed
         ansible_python_interpreter: /usr/bin/python
-      yum:
+      ansible.builtin.yum:
+        #use_backend: dnf
         name:
           - python3
           - docker
@@ -17,7 +18,8 @@
     - name: Ensure docker-compose standalone is installed on the server
       ansible.builtin.get_url:
         # using Jinja2 builtin plugin lookup to get system architecture with 'uname -m'
-        url: https://github.com/docker/compose/releases/download/v2.7.0/docker-compose-linux-{{lookup('pipe', 'uname -m')}}
+        # https://github.com/docker/compose
+        url: https://github.com/docker/compose/releases/download/v2.19.0/docker-compose-linux-{{lookup('pipe', 'uname -m')}}
         dest: /usr/local/bin/docker-compose
         mode: +x
     - name: Start docker and Enable Docker service at startup
@@ -38,7 +40,7 @@
   tasks:
     # add ec2-user to docker group to run docker commands without sudo
     # prefer user module instead of shell module
-    # append so we don't remove user from other groups
+    # APPEND so we don't remove user from other groups
     - name: Add ec2-user to docker group
       ansible.builtin.user:
         name: ec2-user
