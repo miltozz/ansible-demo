@@ -13,3 +13,7 @@ More notes on Jenkinsfile
 Using:
 - [SSH Pipeline Steps](https://plugins.jenkins.io/ssh-steps/)
 - [SSH Agent](https://plugins.jenkins.io/ssh-agent/)
+
+
+Notes:
+- Ansible VM is on the same  subnet with Remote target, so it uses private ip to SSH. In any case we should better use the SG of Ansible as an Inbound rule on target(remote) nodes.
