@@ -9,12 +9,12 @@
         #in case python3 is not installed
         ansible_python_interpreter: /usr/bin/python
       ansible.builtin.yum:
-        use_backend: dnf
         name:
           - python3
           - docker
         update_cache: yes
         state: present
+        use_backend: "dnf"
     - name: Ensure docker-compose standalone is installed on the server
       ansible.builtin.get_url:
         # using Jinja2 builtin plugin lookup to get system architecture with 'uname -m'
