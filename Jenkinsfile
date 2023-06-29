@@ -92,7 +92,7 @@ pipeline {
                         // or pass them in every command
 
                         //we can skip '-i dynamic_inv_aws_ec2.yml' on ansible-playbook execution, since it is defined in ansible.cfg
-                        sshCommand remote: remote, command: "export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph; ansible-playbook install_dockr_ec2-linux-sample.yml"
+                        sshCommand remote: remote, command: "export PATH=$PATH:/home/ubuntu/.local/bin; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; ansible-inventory -i dynamic_inv_aws_ec2.yml --graph; ansible-playbook install_dockr_compose_python_ec2-linux.yml"
                         // ~/.profile adds $HOME/.local/bin to PATH. It is available after logout/login or reboot.
                         // BUT sshd_config still DOESN'T ALLOW user environment(and path) to the ssh command..
                     }
