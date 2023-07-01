@@ -12,3 +12,6 @@ Run from EC2 Ansible Server 3, not from local
 5. Install Docker and docker-compose
 6. Copy local docker-compose file to server
 7. Start docker containers
+
+
+## Note: Terraform remote state is commented-out

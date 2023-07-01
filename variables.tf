@@ -31,13 +31,13 @@ variable "depl_env_prefix" {
 variable "my_ip" {
   description = "My IP for SG SSH ingress"
   type        = string
-  default     = "87.202.58.227/32"
+  default     = "11.111.11.227/32"
 }
 
 variable "ec2_ansible_server_ip" {
   description = "SG SSH ingress for Ansible Server on an EC2 Instance, which runs the playbooks"
   type        = string
-  default     = "15.188.50.237/32"
+  default     = "11.11.11.237/32"
 }
 
 variable "instance_type" {
