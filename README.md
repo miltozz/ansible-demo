@@ -8,7 +8,7 @@
 3. Jenkins will run a pipeline, to connect to Ansible Server and run a playbook to configure  EC2 Linux2 Instances
 4. EC2 Target node-instances created beforehand manually or with Terraform
 
-More notes on Jenkinsfile
+5. More notes on Jenkinsfile
 
 Using:
 - [SSH Pipeline Steps](https://plugins.jenkins.io/ssh-steps/)
