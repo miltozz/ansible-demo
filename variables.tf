@@ -1,3 +1,5 @@
+//var blocks definitions and possible default values
+//var are initialized in .tfvars which is .gitignored
 variable "aws_region" {
   description = "AWS region"
   type        = string
@@ -31,13 +33,13 @@ variable "depl_env_prefix" {
 variable "my_ip" {
   description = "My IP for SG SSH ingress"
   type        = string
-  default     = "87.202.58.227/32"
+  default     = "87.111.11.111/32"
 }
 
 variable "ec2_ansible_server_ip" {
   description = "SG SSH ingress for Ansible Server on an EC2 Instance, which runs the playbooks"
   type        = string
-  default     = "15.188.50.237/32"
+  default     = "11.111.11.237/32"
 }
 
 variable "instance_type" {
@@ -49,7 +51,10 @@ variable "instance_type" {
 variable "public_key_location" {
   description = "EC2 instance type"
   type        = string
-  default     = "C:\\Users\\MLT\\.ssh\\id_ed25519.pub"
+  //windows
+  default = "C:\\Users\\ME\\.ssh\\id_ed25519.pub"
+  //linux
+  //default = "~/.ssh/testkey.pub"
 }
 
 #####################################################################
