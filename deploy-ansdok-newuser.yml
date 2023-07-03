@@ -11,9 +11,9 @@
         host: "{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}"
         search_regex: OpenSSH
       vars:
-        #run this on localhost to each remotehost taken as parameter
+        #run this task on localhost 
         ansible_connection: local
-        # ACTS ON LOCAL!! so no need....
+        # Local execution. Skip python3 check
         #use default python in case python3 is missing
         #ansible_python_interpreter: /usr/bin/python
 
