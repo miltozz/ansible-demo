@@ -4,3 +4,4 @@
 2. Ansible server on EC2 UBUNTU
 3. Jenkins will run a pipeline, to connect to Ansible Server and run a playbook to configure 2 EC2 Linux2 Instances
 
+Trying some Ansible Roles functionality

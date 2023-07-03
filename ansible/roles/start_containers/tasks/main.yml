@@ -1,11 +1,10 @@
 ---
-
 - name: Login to docker private repo
   community.docker.docker_login:
     registry_url: "{{docker_registry}}"
     username: "{{docker_username}}"
     password: "{{docker_pass}}"
-    
+
 - name: Copy docker-compose.yml to server
   ansible.builtin.copy:
     src: /home/mltamd/learn/ansible/learn-ansible/docker-compose.yml

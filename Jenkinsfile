@@ -1,8 +1,7 @@
 pipeline {
     agent any
     environment {
-        // ANSIBLE_SERVER = "35.180.139.3"
-        ANSIBLE_SERVER = "35.180.100.78"
+        ANSIBLE_SERVER = "11.111.111.11"
 
         
     }
@@ -12,47 +11,35 @@ pipeline {
             steps {
                 script {
                     echo "Copy files to ansible-server"
-
-                    //Jenkins ssh agent doesn't work with new BEGIN OPENSSH PRIVATE KEY keys. it needs BEGIN RSA PRIVATE KEY.it needs PEM
-                    //generate or convert keys with smth like 'ssh-keygen -m PEM -t rsa -P "" -f afile'
                     //docker-paris is ans-server-key 
                     sshagent(['new-ans-server-key']){
-                        // ${ANSIBLE_SERVER}:/home/ubuntu without [user]ubuntu will give jenkins@${ANSIBLE_SERVER}:/home/ubuntu                        
                         sh "scp -o StrictHostKeyChecking=no ansible/* ubuntu@${ANSIBLE_SERVER}:/home/ubuntu"
-                    
 
                         echo "copying ssh keys from Jenkins creds store to ansible-server for ec2 instances"
-                        // note: single quotes prevent Groovy interpolation. double quoutes give unsafe warnings
-                        //You should use a single quote (') instead of a double quote (") whenever you can. 
-                        //https://plugins.jenkins.io/credentials-binding/
+
                         withCredentials([sshUserPrivateKey(credentialsId: 'ec2-nodes-key', keyFileVariable: 'keyfile', usernameVariable: 'user')]) {
-                            //if key exists. it has permission 400 and pieline fails
+                            //if key exists, permission 400, pipeline fails
                             sh 'scp $keyfile ubuntu@$ANSIBLE_SERVER:/home/ubuntu/ssh-key.pem'
                         }
                     }
-
                 }
             }
         }
-        // PROBLEM: aws credentials are read from Ansible-server's ~/.aws/credentials file. below env and exports do not work. 
-        // Possibly due to sinlge and double quotes and interpolation confusion
         stage("execute ansible playbook from the ansible-server") {
             environment {
                 // AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
-                // AWS_SECRET_ACCESS_KEY = credentials('jenkins_aws_secret_access_key')
-                AAA='aaa'
-                
+                // AWS_SECRET_ACCESS_KEY = credentials('jenkins_aws_secret_access_key')                
             }
             steps {
                 script {
                     echo "executing ansible-playbook"
 
-                    //jenkins ssh pipeline steps uses old JSch which doesn't support newer SSH versions with keys >= 3072 bits? 
-                    //New SSH versions deprecate? SHA1 and as result we have AUTH_FAIL for RSA keys of SHA1??
-                    //on /var/log/auth.log I found: userauth_pubkey: key type ssh-rsa not in PubkeyAcceptedAlgorithms [preauth]
+                    // Jenkins ssh pipeline steps uses old JSch which doesn't support newer SSH key versions 
+                    // New SSH versions deprecate SHA1 and as result we have AUTH_FAIL for RSA keys of SHA1(?)
+                    // On /var/log/auth.log: userauth_pubkey: key type ssh-rsa not in PubkeyAcceptedAlgorithms [preauth]
                     // temp_fix:  /etc/ssh/sshd_config--> PubkeyAuthentication yes and PubkeyAcceptedKeyTypes=+ssh-rsa
                     // then sudo service sshd reload
-                    //SECURITY CONCERN?? Using deprecated formats?
+                    // SECURITY CONCERN?
                     def remote = [:]
                     remote.name = "ansible-server-ec2"
                     remote.host = ANSIBLE_SERVER

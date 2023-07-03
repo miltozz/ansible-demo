@@ -1,7 +1,7 @@
 version: '3'
 services:
     my-app:
-        #image: 999331468001.dkr.ecr.eu-central-1.amazonaws.com/my-app:1.3
+        #image: 999339999999.dkr.ecr.eu-central-1.amazonaws.com/my-app:1.3
         #image: ${aws_ecr}/my-app:1.3
         image: miltosdev/my-private-repo:jma2-v-1.0.0
         ports:

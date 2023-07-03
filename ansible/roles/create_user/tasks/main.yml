@@ -1,8 +1,6 @@
 ---
-
 - name: Create user to run containers
   user:
     name: mlt
     groups: "{{user_groups}}"
     append: yes
-    
